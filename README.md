@@ -29,3 +29,9 @@ use "sudo kill <PID>"
 
 https://www.maketecheasier.com/show-active-ssh-connections-linux/
 
+
+System Recovery
+"journalctl -xb" to viewsystem logs, "systemctl set-default <target>" to set boot target mode, "systemctl reboot" to reboot, "systemctl default" to try again to boot into default mode.
+https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux-virtual-machine-cannot-start-fstab-errors
+
+

@@ -19,6 +19,9 @@ def parse_hostnamectl(in_string) -> dict:
 
 class Linux(Node):
 
+    def __str__(self):
+        return f"{self.short_name} {self.host_address}:{self.port}"
+
     def uname(self):
         return self.send("uname -r")
 
@@ -92,12 +95,9 @@ class Linux(Node):
     def systemctl_isolate_target(self, target):
         self.send(f"sudo systemctl isolate {target}")
 
-    def mount_ok(self) -> (bool, str):
-        findmnt_out = self.findmnt_verify()
-        if "Success, no errors or warnings detected" in findmnt_out:
-            return (True, findmnt_out)
-        else:
-            return (False, findmnt_out)
+    def mount_ok(self) -> [bool, str]:
+        findmnt = self.findmnt_verify()
+        return ["Success, no errors or warnings detected" in findmnt, findmnt]
 
     def dmesg(self):
         return "TODO"
