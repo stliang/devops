@@ -37,6 +37,9 @@ class Linux(Node):
     def blkid(self):
         return self.send("blkid")
 
+    def lsblk(self):
+        return self.send("lsblk")
+
     # checks fstab works or not
     def findmnt_verify(self):
         return self.send("sudo findmnt --verify --verbose") # file system type read needs sudo
