@@ -14,3 +14,18 @@ nodes:
 
 ## Investigating the boot process
 These devops tools should inspect bootstrap config files for the system startup scripts, inspect the arguments passed from boot loader to kernel, check filesystems mount and system daemons start up status, inspect init script or unit files running sequence by init or systemd, review what devices firmware sees, 
+
+## Config Recommendations
+Save journal across reboot
+cat /etc/systemd/journald.conf.d/storage.conf 
+[Journal]
+Storage=persistent
+systemctl restart systemd-journal
+
+Check for idle ssh connect
+use "w"
+Use "pstree -p"
+use "sudo kill <PID>"
+
+https://www.maketecheasier.com/show-active-ssh-connections-linux/
+
