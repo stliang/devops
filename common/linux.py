@@ -44,7 +44,7 @@ class Linux(Node):
     def fstab(self):
         return self.send("cat /etc/fstab")
 
-   def journalctl_kernel(self):
+    def journalctl_kernel(self):
         return self.send("journalctl -k --no-pager")
 
     # TODO test to see if this command finds "failed for Local File Systems"
@@ -67,16 +67,34 @@ class Linux(Node):
         return self.send("sudo cat /var/log/boot.log")
 
     def systemctl_status(self, unit):
-        return self.send("systemctl status -l {unit}") # TODO test
+        return self.send(f"systemctl status -l {unit}") # TODO test
 
     def systemctl_state(self, state):
-        return self.send("systemctl --state={state} --no-pager --no-legend")
+        return self.send(f"systemctl --state={state} --no-pager --no-legend")
 
     def systemctl_failed(self):
         self.systemctl_state("failed")
 
     def systemctl_default_target(self):
         self.send("systemctl get-default")
+
+    def systemctl_list_targets(self):
+        self.send(f"systemctl list-units --type=target")
+
+    def systemctl_set_default_target(self, target):
+        self.send(f"sudo systemctl set-default {target}")
+
+    # Activate stated target and its dependencies but deactivate all other units
+    # Good for starting a rescue.target for system recovery
+    def systemctl_isolate_target(self, target):
+        self.send(f"sudo systemctl isolate {target}")
+
+    def mount_ok(self) -> (bool, str):
+        findmnt_out = self.findmnt_verify()
+        if "Success, no errors or warnings detected" in findmnt_out:
+            return (True, findmnt_out)
+        else:
+            return (False, findmnt_out)
 
     def dmesg(self):
         return "TODO"
