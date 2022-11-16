@@ -27,7 +27,8 @@ Storage=persistent
 systemctl restart systemd-journal
 ```
 
-Check for idle ssh connect
+
+## Check for idle ssh connect
 ```
 use "w"
 Use "pstree -p"
@@ -36,6 +37,6 @@ use "sudo kill <PID>"
 [reference](https://www.maketecheasier.com/show-active-ssh-connections-linux/)
 
 
-System Recovery
+## System Recovery
 "journalctl -xb" to viewsystem logs, "systemctl set-default <target>" to set boot target mode, "systemctl reboot" to reboot, "systemctl default" to try again to boot into default mode.
 [reference](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/linux-virtual-machine-cannot-start-fstab-errors)
