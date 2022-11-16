@@ -101,3 +101,9 @@ class Linux(Node):
 
     def dmesg(self):
         return "TODO"
+
+    def list_devices(self):
+        return "TODO"
+
+    def list_drivers(self):
+        return "TODO"

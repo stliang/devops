@@ -1,17 +1,20 @@
 from common.linux import Linux
-# from pathlib import Path
+from common.file_helper import *
 import unittest
-# import yaml
 
-class TestStringMethods(unittest.TestCase):
-    # path = Path.home() / ".nodes/linux.yaml"
-    # with path.open("r") as stream:
-    #     linux_nodes = []
-    #     try:
-    #         node_dict = yaml.safe_load(stream)
-    #         for node in node_dict["nodes"]:
-    #             node_instance = Linux(**node)
-    #             print(yaml.dump(node_instance.os_release())) # Yaml dump resulting single quotes in VERSION_ID are fine
-    #             print(yaml.dump(node_instance.hostnamectl()))
-    #     except yaml.YAMLError as exc:
-    #         print(exc)
+# Run this test as "python ./unit_test.py"
+class TestDevOpsMethods(unittest.TestCase):
+
+    def setUp(self):
+        self.nodes = deserialized_nodes()
+        self.node_instances = map(lambda node: Linux(**node), self.nodes)
+
+    def test_mount(self):
+        for node_instance in self.node_instances:
+            print(f"testing node: {node_instance}")
+            mount_checked = node_instance.mount_ok() # [Boolean, String]
+            self.assertTrue(mount_checked[0])
+            break
+
+if __name__ == '__main__':
+    unittest.main()

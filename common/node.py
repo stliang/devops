@@ -12,11 +12,15 @@ class Node:
     def __str__(self):
         return f"{self.host_address}:{self.port} {self.extra_kwargs}"
 
-    def send(self, cmd) -> str:
+    def send(self, cmd, timeout=20) -> str:
+        rtn_output = ''
         with paramiko.SSHClient() as ssh:
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(self.host_address, port=self.port, username=self.username, password=self.password)
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-            rtn_output = ssh_stdout.read().decode('ascii').strip("\n")
-            ssh.close() # context manager should close ssh connection but close anyway
-            return rtn_output
+            try:
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(self.host_address, port=self.port, username=self.username, password=self.password, timeout=timeout)
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+                rtn_output = ssh_stdout.read().decode('ascii').strip("\n")
+                ssh.close() # context manager should close ssh connection but close anyway
+            except (paramiko.SSHException) as se:
+                rtn_output = se
+        return rtn_output

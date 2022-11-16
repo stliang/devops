@@ -7,7 +7,6 @@ def deserialized_nodes() -> [dict]:
     nodes = []
     yamlFilenamesList = glob.glob(str(constants.NODE_FILE_PATH))
     for yaml_file in yamlFilenamesList:
-        print(yaml_file)
         with Path(yaml_file).open("r") as stream:
             try:
                 node_dict = yaml.safe_load(stream)
