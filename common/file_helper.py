@@ -5,7 +5,7 @@ import yaml
 
 def deserialized_nodes() -> [dict]:
     nodes = []
-    yamlFilenamesList = glob.glob(str(constants.NODE_FILE_PATH))
+    yamlFilenamesList = glob.glob(constants.NODE_FILE_PATH)
     for yaml_file in yamlFilenamesList:
         with Path(yaml_file).open("r") as stream:
             try:
