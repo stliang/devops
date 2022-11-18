@@ -107,3 +107,6 @@ class Linux(Node):
 
     def list_drivers(self):
         return "TODO"
+
+    def dmidecode(self):
+        return self.send("dmidecode")
