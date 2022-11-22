@@ -43,7 +43,12 @@ use "sudo kill <PID>"
 
 
 ## Install ArgoCD using Helm
+Installing ArgoCD using Helm chart runs into certification error like this:
+```
+"https://prometheus-community.github.io/helm-charts/index.yaml": x509: certificate signed by unknown authority
+```
 [reference](https://www.arthurkoziel.com/setting-up-argocd-with-helm/)
+
 
 To get the initial password, use k9s to view the argocd-initial-admin-secret file then 
 ```
@@ -57,3 +62,4 @@ kubectl -n <default | argocd namespace> get secret argocd-initial-admin-secret -
 
 Delete argocd-server pod might help as it did me
 [reference](https://stackoverflow.com/questions/68297354/what-is-the-default-password-of-argocd)
+[bug](https://github.com/argoproj/argo-cd/issues/6048)
