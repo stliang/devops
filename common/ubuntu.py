@@ -1,4 +1,4 @@
-# Linux node
+# Ubuntu Linux node
 from .node import Node
 
 def parse_action(in_string, separator_string) -> dict:
@@ -17,7 +17,7 @@ def parse_os_release(in_string) -> dict:
 def parse_hostnamectl(in_string) -> dict:
     return parse_action(in_string, ":")
 
-class Linux(Node):
+class Ubuntu(Node):
 
     def __str__(self):
         return f"{self.short_name} {self.host_address}:{self.port}"

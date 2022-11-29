@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../devops')
-from common.linux import Linux
+from common.ubuntu import Ubuntu
 from common.report import *
 from common.file_helper import *
 
@@ -10,7 +10,7 @@ class HealthCheck():
         nodes # [{short_name: host_1, host_address: x.x.x.x, port: 22, username: ***, password: ***}, ...]
         ):
         self.nodes = nodes
-        self.node_instances = map(lambda node: Linux(**node), self.nodes)
+        self.node_instances = map(lambda node: Ubuntu(**node), self.nodes)
 
     def mount_ok(self):
         for node_instance in self.node_instances:

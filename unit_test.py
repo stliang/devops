@@ -1,4 +1,4 @@
-from common.linux import Linux
+from common.ubuntu import Ubuntu
 from common.file_helper import *
 import unittest
 
@@ -7,7 +7,7 @@ class TestDevOpsMethods(unittest.TestCase):
 
     def setUp(self):
         self.nodes = deserialized_nodes()
-        self.node_instances = map(lambda node: Linux(**node), self.nodes)
+        self.node_instances = map(lambda node: Ubuntu(**node), self.nodes)
 
     def test_mount(self):
         for node_instance in self.node_instances:
