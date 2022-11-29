@@ -110,3 +110,7 @@ class Linux(Node):
 
     def dmidecode(self):
         return self.send("dmidecode")
+
+    # use it to check if systemd is symlinked, if so, systemd is used for init system
+    def sbin_init_symlink(self):
+        return self.send("ls -l /sbin/init")

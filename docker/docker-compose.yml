@@ -1,0 +1,16 @@
+version: "3"
+services:
+  sonarqube:
+    image: sonarqube:tls
+    ports:
+      - 9000:9000
+    networks:
+      - mynetwork
+  jenkins:
+    image: bitnami/jenkins:latest		
+    ports:
+      - 8080:8080
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
