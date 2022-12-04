@@ -29,16 +29,6 @@ def list_files_like(directory, like_file_name) -> [str]:
         found.append(match)
     return found
 
-
-def find_lines(search_term, file_path) -> [str]:
-    found = []
-    with open(file_path, 'r') as fp:
-        lines = fp.readlines()
-        for line in lines:
-            if line.find(search_term) != -1:
-                found.append(line)
-    return found
-
 def find_label(string) -> str:
     pattern = "[L|l]abel[:]*\s+'(.*)'"
     match = re.search(pattern, string) 
@@ -47,11 +37,19 @@ def find_label(string) -> str:
     else:
         return ''
 
+def find_lines_with_label(file_path) -> [str]:
+    found = []
+    with open(file_path, 'r') as fp:
+        lines = fp.readlines()
+        for line in lines:
+            found_label = find_label(line)
+            if found_label:
+                found.append(found_label)
+    return found
+
 def find_labels_in_like_files(directory, like_file_name) -> [str]:
     xs = list_files_like(directory, like_file_name)
-    ys = map(lambda x: find_lines("", x), xs)
+    ys = map(lambda x: find_lines_with_label(x), xs)
     flat_ys = list(itertools.chain(*ys))
-    zs = map(lambda x: find_label(x), flat_ys)
-    labels = list(filter(None, zs))
-    return list(set(labels))
+    return list(set(flat_ys))
     
