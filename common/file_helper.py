@@ -2,6 +2,7 @@ from .constants import constants
 from functools import reduce
 from pathlib import Path
 import glob
+import itertools
 import re
 import yaml
 
@@ -22,9 +23,9 @@ def deserialized_nodes() -> [dict]:
                 print(exc)
     return nodes
 
-def list_files_like(dir, like_file_name) -> [str]:
+def list_files_like(directory, like_file_name) -> [str]:
     found = []
-    for match in glob.glob(f"{dir}/*{like_file_name}*"):
+    for match in glob.glob(f"{directory}/*{like_file_name}*"):
         found.append(match)
     return found
 
@@ -45,4 +46,12 @@ def find_label(string) -> str:
         return match.groups()[0]
     else:
         return ''
+
+def find_labels_in_like_files(directory, like_file_name) -> [str]:
+    xs = list_files_like(directory, like_file_name)
+    ys = map(lambda x: find_lines("", x), xs)
+    flat_ys = list(itertools.chain(*ys))
+    zs = map(lambda x: find_label(x), flat_ys)
+    labels = list(filter(None, zs))
+    return list(set(labels))
     
