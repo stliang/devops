@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../devops')
+sys.path.append('../')
 from common.ubuntu import Ubuntu
 from common.report import *
 from common.file_helper import *

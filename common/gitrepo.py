@@ -7,7 +7,11 @@ class GitRepo:
         self.password = password
         self.repo_home = repo_home
 
-    def clone_repo(self, repo_url):
+    def clone_repo(self, repo_url) -> str:
         x = repo_url.split("/")[-1]
         repo_name = x.split(".")[0]
-        git.Repo.clone_from(repo_url, '{repo_home}/{repo_name}')
+        try:
+            git.Repo.clone_from(repo_url, f"{self.repo_home}/{repo_name}")
+            return repo_name
+        except:
+            return ''

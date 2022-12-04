@@ -23,6 +23,14 @@ def deserialized_nodes() -> [dict]:
                 print(exc)
     return nodes
 
+def deserialized_repos() -> [str]:
+    repos = []
+    repoFilenamesList = glob.glob(constants.GITREPO_FILE_PATH)
+    for repo_file in repoFilenamesList:
+        with open(repo_file) as f:
+            repos += map(lambda x: x.strip(), f.readlines())
+    return repos
+
 def list_files_like(directory, like_file_name) -> [str]:
     found = []
     for match in glob.glob(f"{directory}/*{like_file_name}*"):
