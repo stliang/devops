@@ -17,6 +17,13 @@ git_account = G.GitRepo(C.GITREPO_DIREDTORY)
 checked_out_repos = [git_account.clone_repo(repo_url) for repo_url in repos_to_checkout]
 print(checked_out_repos)
 
+xs = {}
+for repo_name in repo_names:
+    xs[repo_name] = F.find_labels_in_like_files(f"{C.GITREPO_DIREDTORY}/{repo_name}/.jenkins", "Jenkins")
+print(xs)
+
+
+
 # Of the labels being used, which Jenkins agent / node has that label
 
 # Of the nodes' other labels, which other build jobs use them
