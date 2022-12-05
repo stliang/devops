@@ -1,4 +1,4 @@
-from .constants import constants
+import .constants as C
 from functools import reduce
 from pathlib import Path
 import glob
@@ -13,7 +13,7 @@ def composite_function(*func):
 
 def deserialized_nodes() -> [dict]:
     nodes = []
-    yamlFilenamesList = glob.glob(constants.NODE_FILE_PATH)
+    yamlFilenamesList = glob.glob(C.NODE_FILE_PATH)
     for yaml_file in yamlFilenamesList:
         with Path(yaml_file).open("r") as stream:
             try:
@@ -25,7 +25,7 @@ def deserialized_nodes() -> [dict]:
 
 def deserialized_repos() -> [str]:
     repos = []
-    repoFilenamesList = glob.glob(constants.GITREPO_FILE_PATH)
+    repoFilenamesList = glob.glob(C.GITREPO_FILE_PATH)
     for repo_file in repoFilenamesList:
         with open(repo_file) as f:
             repos += map(lambda x: x.strip(), f.readlines())
