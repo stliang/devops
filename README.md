@@ -2,10 +2,9 @@
 devops tools and sample infrastructure code
 
 ## Assumptions
-1. pip install paramiko
-2. pip install pyyaml
-3. pip install gitpython
-4. Nodes files exist ~/.nodes/*.yaml
+1. pip install pipreqs
+2. pipreqs /home/project/location
+3. Nodes files exist ~/.nodes/*.yaml
 
 
 ## Nodes Files
