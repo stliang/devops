@@ -4,7 +4,8 @@ devops tools and sample infrastructure code
 ## Assumptions
 1. pip install pipreqs
 2. pipreqs /home/project/location
-3. Nodes files exist ~/.nodes/*.yaml
+3. pip install -r requirements.txt
+4. Nodes files exist ~/.nodes/*.yaml
 
 
 ## Nodes Files

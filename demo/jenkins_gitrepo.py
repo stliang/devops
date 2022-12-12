@@ -1,3 +1,4 @@
+import sys
 sys.path.append('../')
 import common.constants    as C
 import common.file_helper  as F
@@ -6,7 +7,6 @@ import common.report       as R
 import json
 import os
 import requests
-import sys
 from requests.exceptions import HTTPError
 
 # As a Build and Release engineer, I want to find out which nodes a git repo uses for
