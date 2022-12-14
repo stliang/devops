@@ -21,7 +21,17 @@ checked_out_repos = [git_account.clone_repo(repo_url) for repo_url in repos_to_c
 
 repo_labels = {}
 for repo_name in repo_names:
-    repo_labels[repo_name] = F.find_labels_in_like_files(f"{C.GITREPO_DIREDTORY}/{repo_name}/.jenkins", "Jenkins")
+    repo_labels[repo_name] = F.find_jenkins_labels_in_like_files(f"{C.GITREPO_DIREDTORY}/{repo_name}/.jenkins", "Jenkins")
+
+labels = []
+for k, v in repo_labels.items():
+    labels += v
+
+labels_set = set(labels)
+sorted_labels = sorted(list(labels_set), key=str.lower)
+# print(sorted_labels)
+for label in sorted_labels:
+    print(label)
 
 # get all Jenkins nodes and their assocaited labels
 JENKINS_URL = os.getenv('JENKINS_URL')

@@ -54,15 +54,12 @@ def find_regex_group(regex_pattern, line) -> str:
     else:
         return ''
 
-def find_label(line) -> str:
-    pattern = "[L|l]abel[:]*\s+'(.*)'"
+def find_jenkins_label(line) -> str:
+    pattern = "[L|l]abel\s+'(.*)'"
     return find_regex_group(pattern, line)
 
-def find_lines_with_label(file_path) -> [str]:
-    return find_lines(file_path, find_label)
-
-def find_labels_in_like_files(directory, like_file_name) -> [str]:
-    xs = list_files_like(directory, like_file_name)
-    ys = map(lambda x: find_lines_with_label(x), xs)
+def find_jenkins_labels_in_like_files(directory, like_file_name) -> [str]:
+    list_files = list_files_like(directory, like_file_name)
+    ys = map(lambda a_file: find_lines(a_file, find_jenkins_label), list_files)
     flat_ys = list(itertools.chain(*ys))
     return list(set(flat_ys))
