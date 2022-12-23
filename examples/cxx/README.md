@@ -18,14 +18,14 @@ files will be output and stored in `build/coverage/TestHello.tmp`. Running
 
 Run on docker
 ```
-nerdctl run -v $(pwd):/home/Workspace/rsc_devops -it local/ubuntu:20.04 bash
+nerdctl run -v $(pwd):/home/Workspace/devops -it local/ubuntu:20.04 bash
 ```
 
 # Sample output
 ```
-root@417eaeb5e7b9:/home/Workspace/rsc_devops# mkdir build
-root@417eaeb5e7b9:/home/Workspace/rsc_devops# cd build/
-root@417eaeb5e7b9:/home/Workspace/rsc_devops/build# cmake ..
+root@417eaeb5e7b9:/home/Workspace/devops# mkdir build
+root@417eaeb5e7b9:/home/Workspace/devops# cd build/
+root@417eaeb5e7b9:/home/Workspace/devops/build# cmake ..
 -- The CXX compiler identification is GNU 9.4.0
 -- Check for working CXX compiler: /usr/lib/ccache/c++
 -- Check for working CXX compiler: /usr/lib/ccache/c++ -- works
@@ -33,13 +33,13 @@ root@417eaeb5e7b9:/home/Workspace/rsc_devops/build# cmake ..
 -- Detecting CXX compiler ABI info - done
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Object files will be output to: /home/Workspace/rsc_devops/build/CMakeFiles/tests.dir
--- Source files location: /home/Workspace/rsc_devops/src
+-- Object files will be output to: /home/Workspace/devops/build/CMakeFiles/tests.dir
+-- Source files location: /home/Workspace/devops/src
 -- Found GTest: /usr/local/lib/cmake/GTest/GTestConfig.cmake (found version "1.12.1")  
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/Workspace/rsc_devops/build
-root@417eaeb5e7b9:/home/Workspace/rsc_devops/build# make gcov
+-- Build files have been written to: /home/Workspace/devops/build
+root@417eaeb5e7b9:/home/Workspace/devops/build# make gcov
 Scanning dependencies of target tests
 [ 25%] Building CXX object CMakeFiles/tests.dir/tests/foo_test.o
 [ 50%] Building CXX object CMakeFiles/tests.dir/tests/bar_test.o
@@ -48,7 +48,7 @@ Scanning dependencies of target tests
 [100%] Built target tests
 Scanning dependencies of target gcov
 Running tests...
-Test project /home/Workspace/rsc_devops/build
+Test project /home/Workspace/devops/build
     Start 1: Foo.Adder_add
 1/3 Test #1: Foo.Adder_add ....................   Passed    0.05 sec
     Start 2: Foo.Adder_clear
@@ -60,7 +60,7 @@ Test project /home/Workspace/rsc_devops/build
 
 Total Test time (real) =   0.21 sec
 =================== GCOV ====================
-File '/home/Workspace/rsc_devops/src/Adder.cpp'
+File '/home/Workspace/devops/src/Adder.cpp'
 Lines executed:100.00% of 10
 No branches
 No calls
@@ -70,9 +70,9 @@ File '/usr/include/c++/9/iostream'
 No executable lines
 No branches
 No calls
--- Coverage files have been output to /home/Workspace/rsc_devops/build/coverage
+-- Coverage files have been output to /home/Workspace/devops/build/coverage
 [100%] Built target gcov
-root@417eaeb5e7b9:/home/Workspace/rsc_devops/build# ./tests 
+root@417eaeb5e7b9:/home/Workspace/devops/build# ./tests 
 Running main() from /opt/googletest/googletest/src/gtest_main.cc
 [==========] Running 3 tests from 2 test suites.
 [----------] Global test environment set-up.
