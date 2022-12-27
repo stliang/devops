@@ -12,8 +12,8 @@ devops tools and sample infrastructure code
 The nodes files contains short_name, host_address, port, username, and password information in yaml form:
 ```
 nodes:
- - {short_name: fm040, host_address: 172.0.0.1, port: 22, username: joe, password: morning_joe}
- - {short_name: fm050, host_address: 172.0.0.2, port: 22, username: jane, password: morning_jane}
+ - {short_name: vm040, host_address: 172.0.0.1, port: 22, username: joe, password: morning_joe}
+ - {short_name: vm050, host_address: 172.0.0.2, port: 22, username: jane, password: morning_jane}
 ```
 
 ## Investigating the boot process
