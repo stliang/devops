@@ -4,10 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.sonarqube</groupId>
-  <artifactId>devops_maven_example</artifactId>
+  <artifactId>devops-maven-example</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>Example of basic Maven project</name>
+  <name>devops_maven_example</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
