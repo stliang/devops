@@ -1,3 +1,10 @@
+# Use maven with jacoco
+
+Run on docker
+```
+nerdctl run -v $(pwd):/home/Workspace/devops -it local/ubuntu:20.04 bash
+```
+
 # Reference
 - [sonarqube doc](https://docs.sonarqube.org/latest/analyzing-source-code/test-coverage/java-test-coverage/)
 - [jacoco example 1](https://www.lambdatest.com/blog/reporting-code-coverage-using-maven-and-jacoco-plugin/)
