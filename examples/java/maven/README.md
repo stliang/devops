@@ -23,6 +23,7 @@ mvn clean --settings user-settings.xml --global-settings global-settings.xml
 ```
 
 ## Reference
+- [Jenkins maven example](https://docs.sonarqube.org/9.6/analyzing-source-code/scanners/jenkins-extension-sonarqube/)
 - [Sonar scanning examples](https://github.com/SonarSource/sonar-scanning-examples)
 - [SonarScanner for Maven](https://docs.sonarqube.org/latest/analysis/scan/sonarscanner-for-maven/)
 - [SonarQube doc](https://docs.sonarqube.org/latest/analyzing-source-code/test-coverage/java-test-coverage/)
