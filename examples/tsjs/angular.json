@@ -140,6 +140,7 @@
         "e2e": {
           "builder": "@cypress/schematic:cypress",
           "options": {
+            "browser": "chrome",
             "devServerTarget": "angular-cypress-coverage-tutorial:serve",
             "watch": true,
             "headless": false
