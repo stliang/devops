@@ -140,20 +140,19 @@
         "e2e": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "devServerTarget": "angular-cypress-coverage-tutorial:serve-coverage",
+            "devServerTarget": "angular-cypress-coverage-tutorial:serve",
             "watch": true,
             "headless": false
           },
           "configurations": {
             "production": {
-              "devServerTarget": "angular-cypress-coverage-tutorial:serve-coverage:production"
+              "devServerTarget": "angular-cypress-coverage-tutorial:serve:production"
             }
           }
         },
         "e2e-ci": {
           "builder": "@cypress/schematic:cypress",
           "options": {
-            "browser": "chrome",
             "devServerTarget": "angular-cypress-coverage-tutorial:serve-coverage",
             "headless": true,
             "watch": false

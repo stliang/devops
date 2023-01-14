@@ -177,3 +177,8 @@ build/
 .vscode/
 *.pc
 .clangd/
+
+# node
+.npm
+cypress*
+node_modules
