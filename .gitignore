@@ -179,6 +179,7 @@ build/
 .clangd/
 
 # node
-.npm
-cypress*
 node_modules
+
+# bash
+.bash_history
