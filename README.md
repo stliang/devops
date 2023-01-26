@@ -7,6 +7,9 @@ devops tools and sample infrastructure code
 3. pip install -r requirements.txt
 4. Nodes files exist ~/.nodes/*.yaml
 
+# Local development environment
+[Setup virtualenv for mac](https://opensource.com/article/19/6/python-virtual-environments-mac)
+[Setup virtualenv](https://www.bogotobogo.com/python/python_virtualenv_virtualenvwrapper.php)
 
 ## Nodes Files
 The nodes files contains short_name, host_address, port, username, and password information in yaml form:

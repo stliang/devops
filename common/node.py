@@ -1,6 +1,6 @@
 import paramiko
 
-class Node:
+class Node(object):
     def __init__(self, host_address, username, password, port=22, **kwargs):
         self.host_address = host_address
         self.port = port

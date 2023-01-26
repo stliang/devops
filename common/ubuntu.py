@@ -19,6 +19,10 @@ def parse_hostnamectl(in_string) -> dict:
 
 class Ubuntu(Node):
 
+    def __init__(self, host_address, username, password, short_name="Ubuntu", **kwargs):
+        Node.__init__(self, host_address, username, password, **kwargs)
+        self.short_name = short_name
+
     def __str__(self):
         return f"{self.short_name} {self.host_address}:{self.port}"
 
@@ -114,3 +118,9 @@ class Ubuntu(Node):
     # use it to check if systemd is symlinked, if so, systemd is used for init system
     def sbin_init_symlink(self):
         return self.send("ls -l /sbin/init")
+
+    # Check systemd-timesyncd.service
+
+    # Start systemd-timesyncd.service
+
+    # Check disk size
