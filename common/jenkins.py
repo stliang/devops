@@ -9,9 +9,9 @@ from .ubuntu import Ubuntu
 
 class Jenkins(Ubuntu):
 
-    # Supper ars: host_address, username, password, port=22,  try *args
-    def __init__(self, host_address, username, password, short_name="Jenkins", jenkins_url="", **kwargs):
+    def __init__(self, host_address, username, password, jenkins_auth="", short_name="Jenkins", jenkins_url="", **kwargs):
         Ubuntu.__init__(self, host_address, username, password, short_name, **kwargs)
+        self.jenkins_auth = jenkins_auth
         match jenkins_url:
             case "":
                 self.jenkins_url = f"http://{self.host_address}"
@@ -21,9 +21,17 @@ class Jenkins(Ubuntu):
     def __str__(self):
         return f"{self.short_name} {self.jenkins_url} {self.host_address}:{self.port}"
 
-    def get_job(self, folder, job_name):
-        # java -jar jenkins-cli.jar -s <Jenkins Address> -auth <key> get-job <Folder>/<Job Name> > <Job Name>.xml
-        return ""
+    def get_job(self, job_path):
+        return self.send(f"java -jar jenkins-cli.jar -s {self.jenkins_url} -auth {self.jenkins_auth} get-job {job_path}")
+
+    def list_jobs(self, view_name="") -> [str]:
+        match view_name:
+            case "":
+                cmd = f"java -jar jenkins-cli.jar -s {self.jenkins_url} -auth {self.jenkins_auth} list-jobs"
+                return self.send(cmd).split()
+            case _:
+                cmd = f"java -jar jenkins-cli.jar -s {self.jenkins_url} -auth {self.jenkins_auth} list-jobs {view_name}"
+                return self.send(cmd).split()
 
     # Check docker usage of host disk
 

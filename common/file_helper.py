@@ -11,9 +11,9 @@ def composite_function(*func):
         return lambda x : f(g(x))  
     return reduce(compose, func, lambda x : x)
 
-def deserialized_nodes() -> [dict]:
+def deserialized_nodes(file_path=C.NODE_FILE_PATH) -> [dict]:
     nodes = []
-    yamlFilenamesList = glob.glob(C.NODE_FILE_PATH)
+    yamlFilenamesList = glob.glob(file_path)
     for yaml_file in yamlFilenamesList:
         with Path(yaml_file).open("r") as stream:
             try:
@@ -22,6 +22,9 @@ def deserialized_nodes() -> [dict]:
             except yaml.YAMLError as exc:
                 print(exc)
     return nodes
+
+def deserialized_jenkins_nodes(file_path=C.JENKINS_NODE_FILE_PATH) -> [dict]:
+    return deserialized_nodes(file_path)
 
 def deserialized_repos() -> [str]:
     repos = []
