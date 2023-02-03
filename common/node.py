@@ -16,11 +16,17 @@ class Node(object):
         rtn_output = ''
         with paramiko.SSHClient() as ssh:
             try:
+            #     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            #     ssh.connect(self.host_address, port=self.port, username=self.username, password=self.password, timeout=timeout)
+            #     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+            #     rtn_output = ssh_stdout.read().decode('ascii').strip("\n")
+            #     ssh.close() # context manager should close ssh connection but close anyway
+            # except (UnicodeDecodeError) as er:
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(self.host_address, port=self.port, username=self.username, password=self.password, timeout=timeout)
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-                rtn_output = ssh_stdout.read().decode('ascii').strip("\n")
-                ssh.close() # context manager should close ssh connection but close anyway
+                rtn_output = ssh_stdout.read().decode('utf-8').strip("\n")
+                ssh.close()     
             except (paramiko.SSHException) as se:
                 rtn_output = se
         return rtn_output

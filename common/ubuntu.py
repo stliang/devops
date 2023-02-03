@@ -99,10 +99,6 @@ class Ubuntu(Node):
     def systemctl_isolate_target(self, target):
         self.send(f"sudo systemctl isolate {target}")
 
-    def mount_ok(self) -> [bool, str]:
-        findmnt = self.findmnt_verify()
-        return ["Success, no errors or warnings detected" in findmnt, findmnt]
-
     def dmesg(self):
         return "TODO"
 
@@ -119,8 +115,31 @@ class Ubuntu(Node):
     def sbin_init_symlink(self):
         return self.send("ls -l /sbin/init")
 
-    # Check systemd-timesyncd.service
+    def timedatectl_status(self):
+        return self.send("sudo timedatectl status")
 
-    # Start systemd-timesyncd.service
+    # Set systemd-timesyncd.service
+    def systemd_timesyncd(self, cmd="status"):
+        match cmd:
+            case "start":
+                self.send("sudo systemctl enable systemd-timesyncd.service")
+                return self.send("sudo systemctl start systemd-timesyncd.service")
+            case "stop":
+                self.send("sudo systemctl stop systemd-timesyncd.service")
+                return self.send("sudo systemctl disable systemd-timesyncd.service")
+            case _:
+                return self.send("sudo systemctl status systemd-timesyncd.service")
+
+
+    def ntp(self, cmd="status"):
+        match cmd:
+            case "start":
+                self.send("sudo systemctl enable ntp.service")
+                return self.send("sudo systemctl start ntp.service")
+            case "stop":
+                self.send("sudo systemctl stop ntp.service")
+                return self.send("sudo systemctl disable ntp.service")
+            case _:
+                return self.send("sudo systemctl status ntp.service")
 
     # Check disk size
