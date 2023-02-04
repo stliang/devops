@@ -37,9 +37,10 @@ def systemctl_status_str(service_name) -> str:
 
 class Ubuntu(Node):
 
-    def __init__(self, host_address, username, password, short_name="Ubuntu", **kwargs):
+    def __init__(self, host_address, username, password, short_name="Ubuntu", capabilities=[], **kwargs):
         Node.__init__(self, host_address, username, password, **kwargs)
         self.short_name = short_name
+        self.capabilities = capabilities
 
     def __str__(self):
         return f"{self.short_name} {self.host_address}:{self.port}"
@@ -153,8 +154,11 @@ class Ubuntu(Node):
     def ntp(self, cmd="status"):
         return self.systemctl_action("ntp.service", cmd)
 
-    def docker(self, cmd="status"):
+    def docker_service(self, cmd="status"):
         return self.systemctl_action("docker", cmd)
+
+    def docker_version(self):
+        return self.send("docker version")
 
     def df_h(self):
         return self.send("df -h")

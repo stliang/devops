@@ -5,9 +5,17 @@ from common.file_helper import *
 
 class UbuntuHealthCheck(Ubuntu):
 
-    def docker_ok(self) -> [bool, str]:
-        output = self.docker()
+    def docker_service_ok(self) -> [bool, str]:
+        output = self.docker_service()
         return ["active (running)" in output, output]
+
+    def docker_version_ok(self) -> [bool, str]:
+        output = self.docker_version()
+        match self.capabilities:
+            case {'docker': version}:
+                return [version in output, output]
+            case _:
+                return [False, "Docker capability not defined in node object"]
 
     def mount_ok(self, mount_path) -> [bool, str]:
         output = self.findmnt_verify()
@@ -24,14 +32,22 @@ class UbuntuHealthCheck(Ubuntu):
         return ["active (running)" in output, output]
 
     # sample java version output: openjdk version "11.0.17" 2022-10-18
-    def java_version_ok(self, java_version) -> [bool, str]:
+    def java_version_ok(self) -> [bool, str]:
         output = self.java_version()
-        return [java_version in output, output]
+        match self.capabilities:
+            case {'java': version}:
+                return [version in output, output]
+            case _:
+                return [False, "Java capability not defined in node object"]
 
     # sample jps output: java-11-openjdk-amd64
-    def java_ps_ok(self, java_version) -> [bool, str]:
+    def java_ps_ok(self) -> [bool, str]:
         output = self.jps()
-        return [java_version in output, output]
+        match self.capabilities:
+            case {'java': version}:
+                return [version in output, output]
+            case _:
+                return [False, "Java capability not defined in node object"]
 
     def mount_path_usage_ok(self, mount_path, usage_limit) -> [bool, str]:
         output = self.df_h()
