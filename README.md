@@ -15,8 +15,28 @@ devops tools and sample infrastructure code
 The nodes files contains short_name, host_address, port, username, and password information in yaml form:
 ```
 nodes:
- - {short_name: vm040, host_address: 172.0.0.1, port: 22, username: joe, password: morning_joe}
- - {short_name: vm050, host_address: 172.0.0.2, port: 22, username: jane, password: morning_jane}
+  -
+    short_name: vm01
+    host_address: 172.0.0.1
+    port: 22
+    username: joe
+    password: morning_joe
+    jenkins_auth: "joe:************************"
+    jenkins_url: "http://localhost:8080/"
+    capabilities:
+      docker: "20.10.21"
+      java: "11"
+  -
+    short_name: vm02
+    host_address: 172.0.0.2
+    port: 22
+    username: jane
+    password: morning_jane
+    jenkins_auth: "jane:************************"
+    jenkins_url: "http://localhost:8080/"
+    capabilities:
+      docker: "20.10.21"
+      java: "11"
 ```
 
 ## Investigating the boot process
