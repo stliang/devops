@@ -17,6 +17,24 @@ def parse_os_release(in_string) -> dict:
 def parse_hostnamectl(in_string) -> dict:
     return parse_action(in_string, ":")
 
+def systemctl_enable_str(service_name) -> str:
+    return f"sudo systemctl enable {service_name} --no-pager"
+
+def systemctl_disable_str(service_name) -> str:
+    return f"sudo systemctl disable {service_name} --no-pager"
+
+def systemctl_start_str(service_name) -> str:
+    return f"sudo systemctl start {service_name} --no-pager"
+
+def systemctl_stop_str(service_name) -> str:
+    return f"sudo systemctl stop {service_name} --no-pager"
+
+def systemctl_restart_str(service_name) -> str:
+    return f"sudo systemctl restart {service_name} --no-pager"
+
+def systemctl_status_str(service_name) -> str:
+        return f"sudo systemctl status {service_name} --no-pager"
+
 class Ubuntu(Node):
 
     def __init__(self, host_address, username, password, short_name="Ubuntu", **kwargs):
@@ -118,28 +136,35 @@ class Ubuntu(Node):
     def timedatectl_status(self):
         return self.send("sudo timedatectl status")
 
-    # Set systemd-timesyncd.service
-    def systemd_timesyncd(self, cmd="status"):
+    def systemctl_action(self, service_name, cmd="status"):
         match cmd:
             case "start":
-                self.send("sudo systemctl enable systemd-timesyncd.service")
-                return self.send("sudo systemctl start systemd-timesyncd.service")
+                self.send(systemctl_enable_str(service_name))
+                return self.send(systemctl_start_str(service_name))
             case "stop":
-                self.send("sudo systemctl stop systemd-timesyncd.service")
-                return self.send("sudo systemctl disable systemd-timesyncd.service")
+                self.send(systemctl_stop_str(service_name))
+                return self.send(systemctl_disable_str(service_name))
             case _:
-                return self.send("sudo systemctl status systemd-timesyncd.service")
+                return self.send(systemctl_status_str(service_name))
 
+    def systemd_timesyncd(self, cmd="status"):
+        return self.systemctl_action("systemd-timesyncd.service", cmd)
 
     def ntp(self, cmd="status"):
-        match cmd:
-            case "start":
-                self.send("sudo systemctl enable ntp.service")
-                return self.send("sudo systemctl start ntp.service")
-            case "stop":
-                self.send("sudo systemctl stop ntp.service")
-                return self.send("sudo systemctl disable ntp.service")
-            case _:
-                return self.send("sudo systemctl status ntp.service")
+        return self.systemctl_action("ntp.service", cmd)
 
-    # Check disk size
+    def docker(self, cmd="status"):
+        return self.systemctl_action("docker", cmd)
+
+    def df_h(self):
+        return self.send("df -h")
+
+    def java_version(self):
+        return self.send("java -version 2>&1 | head -n 1")
+
+    # Java Process
+    def jps(self):
+        return self.send("jps -v")
+
+    def nvidia_smi(self):
+        return self.send("nvidia-smi -L")
