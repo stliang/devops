@@ -26,6 +26,12 @@ nodes:
     capabilities:
       docker: "20.10.21"
       java: "11"
+    usage_limits:
+      root_mount: 70
+      cpu: 80
+      mem: 60
+      jvm_heap: 60
+      jvm_stack: 60
   -
     short_name: vm02
     host_address: 172.0.0.2
@@ -37,6 +43,12 @@ nodes:
     capabilities:
       docker: "20.10.21"
       java: "11"
+    usage_limits:
+      root_mount: 70
+      cpu: 80
+      mem: 60
+      jvm_heap: 60
+      jvm_stack: 60
 ```
 
 ## Investigating the boot process
