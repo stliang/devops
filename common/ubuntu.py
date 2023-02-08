@@ -1,5 +1,6 @@
 # Ubuntu Linux node
 from .node import Node
+import re
 
 def parse_action(in_string, separator_string) -> dict:
     out = {}
@@ -160,11 +161,22 @@ class Ubuntu(Node):
     def docker_version(self):
         return self.send("docker version")
 
+    def docker_server_version(self):
+        output = self.send("docker version --format '{{.Server.Version}}'")
+        return output
+
+    def docker_client_version(self):
+        output = self.send("docker version --format '{{.Client.Version}}'")
+        return output
+
     def df_h(self):
         return self.send("df -h")
 
     def java_version(self):
-        return self.send("java -version 2>&1 | head -n 1")
+        output = self.send("java -version 2>&1 | head -n 1")
+        p = re.compile('.*\"(\d+.\d+.\d+)\".*')
+        m = p.match(output)
+        return m.group(1)
 
     # Java Process
     def jps(self):

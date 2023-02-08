@@ -2,6 +2,7 @@ import sys
 from common.ubuntu import Ubuntu
 from common.report import *
 from common.file_helper import *
+import re
 
 class UbuntuHealthCheck(Ubuntu):
 
@@ -9,13 +10,22 @@ class UbuntuHealthCheck(Ubuntu):
         output = self.docker_service()
         return ["active (running)" in output, output]
 
-    def docker_version_ok(self) -> [bool, str]:
-        output = self.docker_version()
+    def docker_server_version_ok(self) -> [bool, str]:
+        output = self.docker_server_version()
         match self.capabilities:
-            case {'docker': version}:
+            case {'docker_server_version': version}:
                 return [version in output, output]
             case _:
                 return [False, "Docker capability not defined in node object"]
+
+    def docker_client_version_ok(self) -> [bool, str]:
+        output = self.docker_client_version()
+        match self.capabilities:
+            case {'docker_client_version': version}:
+                return [version in output, output]
+            case _:
+                return [False, "Docker capability not defined in node object"]
+
 
     def mount_ok(self, mount_path) -> [bool, str]:
         output = self.findmnt_verify()
@@ -35,7 +45,7 @@ class UbuntuHealthCheck(Ubuntu):
     def java_version_ok(self) -> [bool, str]:
         output = self.java_version()
         match self.capabilities:
-            case {'java': version}:
+            case {'java_version': version}:
                 return [version in output, output]
             case _:
                 return [False, "Java capability not defined in node object"]
@@ -44,8 +54,11 @@ class UbuntuHealthCheck(Ubuntu):
     def java_ps_ok(self) -> [bool, str]:
         output = self.jps()
         match self.capabilities:
-            case {'java': version}:
-                return [version in output, output]
+            case {'java_version': version}:
+                p = re.compile('(\d+).\d+.\d+')
+                m = p.match(output)
+                major_version = m.group(1)
+                return [major_version in output, output]
             case _:
                 return [False, "Java capability not defined in node object"]
 

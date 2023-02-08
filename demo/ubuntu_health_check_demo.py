@@ -38,10 +38,10 @@ class Demo():
 
     def check_java_ok(self, ubuntu_instance):
         match ubuntu_instance.capabilities:
-            case {'java': version}:
+            case {'java_version': version}:
                 java_version = version
             case _:
-                java_version = "version undefined"
+                java_version = "java_version undefined"
         match ubuntu_instance.java_version_ok():
             case [True,msg]:
                 print_ok(f"{ubuntu_instance} java {java_version}")
@@ -66,19 +66,33 @@ class Demo():
             case _:
                 print_unkown(f"{ubuntu_instance} docker service")
 
-    def check_docker_version_ok(self, ubuntu_instance):
+    def check_docker_server_version_ok(self, ubuntu_instance):
         match ubuntu_instance.capabilities:
-            case {'docker': version}:
-                docker_version = version
+            case {'docker_server_version': version}:
+                docker_server_version = version
             case _:
-                docker_version = "version undefined"
-        match ubuntu_instance.docker_version_ok():
+                docker_server_version = "Docker server version undefined"
+        match ubuntu_instance.docker_server_version_ok():
             case [True,msg]:
-                print_ok(f"{ubuntu_instance} docker version {docker_version}")
+                print_ok(f"{ubuntu_instance} docker server version {docker_server_version}")
             case [_,msg]:
-                print_fail(f"{ubuntu_instance} docker version {docker_version}", msg)
+                print_fail(f"{ubuntu_instance} docker server version {docker_server_version}", msg)
             case _:
-                print_unkown(f"{ubuntu_instance} docker version {docker_version}")
+                print_unkown(f"{ubuntu_instance} docker server version {docker_server_version}")
+
+    def check_docker_client_version_ok(self, ubuntu_instance):
+        match ubuntu_instance.capabilities:
+            case {'docker_client_version': version}:
+                docker_client_version = version
+            case _:
+                docker_client_version = "Docker server version undefined"
+        match ubuntu_instance.docker_client_version_ok():
+            case [True,msg]:
+                print_ok(f"{ubuntu_instance} docker server version {docker_client_version}")
+            case [_,msg]:
+                print_fail(f"{ubuntu_instance} docker server version {docker_client_version}", msg)
+            case _:
+                print_unkown(f"{ubuntu_instance} docker server version {docker_client_version}")
 
     def check_all(self, ubuntu_instance):
         self.check_mount_ok(ubuntu_instance, "/")
@@ -86,7 +100,8 @@ class Demo():
         self.check_mount_path_usage_ok(ubuntu_instance, mount_path="/", usage_limit=70)
         self.check_java_ok(ubuntu_instance)
         self.check_docker_service_ok(ubuntu_instance)
-        self.check_docker_version_ok(ubuntu_instance)
+        self.check_docker_server_version_ok(ubuntu_instance)
+        self.check_docker_client_version_ok(ubuntu_instance)
     
     def run(self):
         for ubuntu_instance in self.ubuntu_instances:
@@ -94,10 +109,12 @@ class Demo():
 
     def debug(self):
         for ubuntu_instance in self.ubuntu_instances:
-            print(ubuntu_instance.capabilities)
+            print(f"{ubuntu_instance} Docker server version: {ubuntu_instance.docker_server_version()}")
+            print(f"{ubuntu_instance} Docker client version: {ubuntu_instance.docker_client_version()}")
+            print(f"{ubuntu_instance} Java version: {ubuntu_instance.java_version()}")
 
 # Demo Ubuntu Health Check on Jenkins Nodes
 my_nodes = deserialized_jenkins_nodes()
 demo = Demo(my_nodes)
-demo.run()
-# demo.debug()
+# demo.run()
+demo.debug()
