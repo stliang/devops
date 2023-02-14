@@ -6,6 +6,13 @@ import re
 
 class UbuntuHealthCheck(Ubuntu):
 
+    def __init__(self, host_address, username, password, usage_limits={}, **kwargs):
+        Ubuntu.__init__(self, host_address, username, password, **kwargs)
+        self.usage_limits = usage_limits
+
+    def set_health_check_state(self, state):
+        self.set_state(state | {'usage_limits': self.usage_limits})
+
     def docker_service_ok(self) -> [bool, str]:
         output = self.docker_service()
         return ["active (running)" in output, output]

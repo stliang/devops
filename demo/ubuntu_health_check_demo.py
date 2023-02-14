@@ -108,12 +108,13 @@ class Demo():
             self.check_all(ubuntu_instance)
 
     def debug(self):
+        output = {'nodes': []}
         for ubuntu_instance in self.ubuntu_instances:
-            print(ubuntu_instance)
-            print(f"Docker server version: {ubuntu_instance.docker_server_version()}")
-            print(f"Docker client version: {ubuntu_instance.docker_client_version()}")
-            print(f"Java version: {ubuntu_instance.java_version()}")
-            print("\n")
+            life_state = ubuntu_instance.life_state()
+            ubuntu_instance.set_health_check_state(life_state)
+            output['nodes'] += [ubuntu_instance.get_state()]
+        # print(yaml.dump(output))
+        save_jenkins_nodes_state(output)
 
 # Demo Ubuntu Health Check on Jenkins Nodes
 my_nodes = deserialized_jenkins_nodes()

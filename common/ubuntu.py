@@ -38,13 +38,43 @@ def systemctl_status_str(service_name) -> str:
 
 class Ubuntu(Node):
 
-    def __init__(self, host_address, username, password, short_name="Ubuntu", capabilities=[], **kwargs):
+    def __init__(self, host_address, username, password, short_name="Ubuntu", capabilities={}, **kwargs):
         Node.__init__(self, host_address, username, password, **kwargs)
         self.short_name = short_name
         self.capabilities = capabilities
+        self.state = {}
 
     def __str__(self):
         return f"{self.short_name} {self.host_address}:{self.port}"
+
+    def get_state(self):
+        return self.state
+
+    def get_capabilities(self):
+        capabilities = {}
+        docker_server_version = self.docker_server_version()
+        if docker_server_version:
+            capabilities['docker_server_version'] = docker_server_version
+        docker_client_version = self.docker_client_version()
+        if docker_client_version:
+            capabilities['docker_client_version'] = docker_client_version
+        java_version = self.java_version()
+        if java_version:
+            capabilities['java_version'] = java_version
+        return capabilities
+
+    def life_state(self):
+        return {
+            'short_name': self.short_name,
+            'host_address': self.host_address,
+            'port': self.port,
+            'username': self.username,
+            'password': self.password,
+            'capabilities': self.get_capabilities()
+        }
+
+    def set_state(self, state):
+        self.state = state
 
     def uname(self):
         return self.send("uname -r")

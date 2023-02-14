@@ -66,3 +66,7 @@ def find_jenkins_labels_in_like_files(directory, like_file_name) -> [str]:
     ys = map(lambda a_file: find_lines(a_file, find_jenkins_label), list_files)
     flat_ys = list(itertools.chain(*ys))
     return list(set(flat_ys))
+
+def save_jenkins_nodes_state(state, file_path=f"{C.JENKINS_NODE_FILE_DIR}/jenkins_nodes.yaml"):
+    with open(file_path, 'w') as f:
+        f.write(yaml.dump(state, default_flow_style=False, indent=2))
