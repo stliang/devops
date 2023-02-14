@@ -113,7 +113,7 @@ class Demo():
             life_state = ubuntu_instance.life_state()
             ubuntu_instance.set_health_check_state(life_state)
             output['nodes'] += [ubuntu_instance.get_state()]
-        # print(yaml.dump(output))
+        print(f"processing node: {ubuntu_instance}")
         save_jenkins_nodes_state(output)
 
 # Demo Ubuntu Health Check on Jenkins Nodes

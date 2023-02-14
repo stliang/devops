@@ -4,6 +4,8 @@ from common.report import *
 from common.file_helper import *
 import re
 
+# This UbuntuHealthCheck class work with defined operation limits.  Prometheus node_exporter
+# should do the samething.  Absent of that, use UbuntuHealthCheck.
 class UbuntuHealthCheck(Ubuntu):
 
     def __init__(self, host_address, username, password, usage_limits={}, **kwargs):
