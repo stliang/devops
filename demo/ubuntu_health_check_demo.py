@@ -109,9 +109,11 @@ class Demo():
 
     def debug(self):
         for ubuntu_instance in self.ubuntu_instances:
-            print(f"{ubuntu_instance} Docker server version: {ubuntu_instance.docker_server_version()}")
-            print(f"{ubuntu_instance} Docker client version: {ubuntu_instance.docker_client_version()}")
-            print(f"{ubuntu_instance} Java version: {ubuntu_instance.java_version()}")
+            print(ubuntu_instance)
+            print(f"Docker server version: {ubuntu_instance.docker_server_version()}")
+            print(f"Docker client version: {ubuntu_instance.docker_client_version()}")
+            print(f"Java version: {ubuntu_instance.java_version()}")
+            print("\n")
 
 # Demo Ubuntu Health Check on Jenkins Nodes
 my_nodes = deserialized_jenkins_nodes()

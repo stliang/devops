@@ -174,7 +174,7 @@ class Ubuntu(Node):
 
     def java_version(self):
         output = self.send("java -version 2>&1 | head -n 1")
-        p = re.compile('.*\"(\d+.\d+.\d+)\".*')
+        p = re.compile('.*\"(\d+.\d+.\d+.*)\".*')
         m = p.match(output)
         return m.group(1)
 
