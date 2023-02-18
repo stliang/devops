@@ -21,11 +21,23 @@ class Demo():
             case _:
                 print_unkown(f"{ubuntu_instance} mount path {mount_path}")
 
-    def check_time_service_ok(self, ubuntu_instance):
-        if ubuntu_instance.systemd_timesyncd_ok()[0] or ubuntu_instance.ntp_ok()[0]:
-            print_ok(f"{ubuntu_instance} time service")
-        else:
-            print_fail(f"{ubuntu_instance} time service", "not running")
+    def check_timesyncd_ok(self, ubuntu_instance):
+        match ubuntu_instance.systemd_timesyncd_ok():
+            case [True,msg]:
+                print_ok(f"{ubuntu_instance} timesyncd")
+            case [_,msg]:
+                print_fail(f"{ubuntu_instance} timesyncd", msg)
+            case _:
+                print_unkown(f"{ubuntu_instance} timesyncd")
+
+    def check_ntp_ok(self, ubuntu_instance):
+        match ubuntu_instance.ntp_ok():
+            case [True,msg]:
+                print_ok(f"{ubuntu_instance} ntp")
+            case [_,msg]:
+                print_fail(f"{ubuntu_instance} ntp", msg)
+            case _:
+                print_unkown(f"{ubuntu_instance} ntp")
 
     def check_mount_path_usage_ok(self, ubuntu_instance, mount_path="/", usage_limit=60):
         match ubuntu_instance.mount_path_usage_ok(mount_path, usage_limit):
@@ -36,24 +48,21 @@ class Demo():
             case _:
                 print_unkown(f"{ubuntu_instance} mount path {mount_path} usage")
 
-    def check_java_ok(self, ubuntu_instance):
-        match ubuntu_instance.capabilities:
-            case {'java_version': version}:
-                java_version = version
-            case _:
-                java_version = "java_version undefined"
+    def check_java_version_ok(self, ubuntu_instance):
         match ubuntu_instance.java_version_ok():
             case [True,msg]:
-                print_ok(f"{ubuntu_instance} java {java_version}")
+                print_ok(f"{ubuntu_instance} java {ubuntu_instance.capabilities['java_version']}")
             case [_,msg]:
-                print_fail(f"{ubuntu_instance} java {java_version}", msg)
+                print_fail(f"{ubuntu_instance} java version", msg)
             case _:
                 print_unkown(f"{ubuntu_instance} java version")
+
+    def check_java_ps_ok(self, ubuntu_instance):
         match ubuntu_instance.java_ps_ok():
             case [True,msg]:
-                print_ok(f"{ubuntu_instance} java {java_version} process")
+                print_ok(f"{ubuntu_instance} java process {ubuntu_instance.capabilities['java_process']}")
             case [_,msg]:
-                print_fail(f"{ubuntu_instance} java {java_version} process", msg)
+                print_fail(f"{ubuntu_instance} java process", msg)
             case _:
                 print_unkown(f"{ubuntu_instance} java process")
 
@@ -67,41 +76,78 @@ class Demo():
                 print_unkown(f"{ubuntu_instance} docker service")
 
     def check_docker_server_version_ok(self, ubuntu_instance):
-        match ubuntu_instance.capabilities:
-            case {'docker_server_version': version}:
-                docker_server_version = version
-            case _:
-                docker_server_version = "Docker server version undefined"
         match ubuntu_instance.docker_server_version_ok():
             case [True,msg]:
-                print_ok(f"{ubuntu_instance} docker server version {docker_server_version}")
+                print_ok(f"{ubuntu_instance} docker server version {ubuntu_instance.capabilities['docker_server_version']}")
             case [_,msg]:
-                print_fail(f"{ubuntu_instance} docker server version {docker_server_version}", msg)
+                print_fail(f"{ubuntu_instance} docker server version", msg)
             case _:
-                print_unkown(f"{ubuntu_instance} docker server version {docker_server_version}")
+                print_unkown(f"{ubuntu_instance} docker server version")
 
     def check_docker_client_version_ok(self, ubuntu_instance):
-        match ubuntu_instance.capabilities:
-            case {'docker_client_version': version}:
-                docker_client_version = version
-            case _:
-                docker_client_version = "Docker server version undefined"
         match ubuntu_instance.docker_client_version_ok():
             case [True,msg]:
-                print_ok(f"{ubuntu_instance} docker server version {docker_client_version}")
+                print_ok(f"{ubuntu_instance} docker server version {ubuntu_instance.capabilities['docker_client_version']}")
             case [_,msg]:
-                print_fail(f"{ubuntu_instance} docker server version {docker_client_version}", msg)
+                print_fail(f"{ubuntu_instance} docker server version", msg)
             case _:
-                print_unkown(f"{ubuntu_instance} docker server version {docker_client_version}")
+                print_unkown(f"{ubuntu_instance} docker server version")
+
+    def check_capabilities(self, ubuntu_instance):
+        for capability in ubuntu_instance.capabilities.items():
+            match capability:
+                case ('docker_client_version', _):
+                    self.check_docker_client_version_ok(ubuntu_instance)
+                case ('docker_server_version', _):
+                    self.check_docker_server_version_ok(ubuntu_instance)
+                case ('container_service', _):
+                    self.check_docker_service_ok(ubuntu_instance)
+                case ('java_version', _):
+                    self.check_java_version_ok(ubuntu_instance)
+                case ('java_process', _):
+                    self.check_java_ps_ok(ubuntu_instance)
+                case ('time_service', time_service):
+                    match time_service:
+                        case 'ntp':
+                            self.check_ntp_ok(ubuntu_instance)
+                        case 'timesyncd':
+                            self.check_timesyncd_ok(ubuntu_instance)
+                        case _:
+                            print_unkown(f"{ubuntu_instance} time_service capability not defined")
+                case _:
+                    print("No capabilities defined in node object")
+    
+    def check_operational_limits(self, ubuntu_instance):
+        for limit in ubuntu_instance.operational_limits.items():
+            match limit:
+                case ('cpu', percentage):
+                    print(f"cpu {percentage}")
+                case ('mem', percentage):
+                    print(f"mem {percentage}")
+                case ('container_service', percentage):
+                    print(f"container_service {percentage}")
+                case ('jvm_heap', percentage):
+                    print(f"work in progress ... jvm_heap {percentage}")
+                case ('jvm_stack', percentage):
+                    print(f"work in progress ... jvm_stack {percentage}")
+                case ('mount_points', mount_point_limits):
+                    for mount_point, limit in mount_point_limits.items():
+                        print(f"mount_point_limit {mount_point} {limit}%")
+                        match ubuntu_instance.mount_path_usage_ok(mount_point, limit):
+                            case [True,msg]:
+                                print_ok(f"{ubuntu_instance} mount point {mount_point} within {limit}%")
+                            case [_,msg]:
+                                print_fail(f"{ubuntu_instance} mount point {mount_point}", msg)
+                            case _:
+                                print_unkown(f"{ubuntu_instance} mount point")
+                case _:
+                    print("No operational limits defined in node object")
+        # self.check_mount_ok(ubuntu_instance, "/")
+        #  self.check_mount_path_usage_ok(ubuntu_instance, mount_path="/", usage_limit=70)
 
     def check_all(self, ubuntu_instance):
-        self.check_mount_ok(ubuntu_instance, "/")
-        self.check_time_service_ok(ubuntu_instance)
-        self.check_mount_path_usage_ok(ubuntu_instance, mount_path="/", usage_limit=70)
-        self.check_java_ok(ubuntu_instance)
-        self.check_docker_service_ok(ubuntu_instance)
-        self.check_docker_server_version_ok(ubuntu_instance)
-        self.check_docker_client_version_ok(ubuntu_instance)
+        # self.check_capabilities(ubuntu_instance)
+        self.check_operational_limits(ubuntu_instance)
     
     def run(self):
         for ubuntu_instance in self.ubuntu_instances:
@@ -119,5 +165,5 @@ class Demo():
 # Demo Ubuntu Health Check on Jenkins Nodes
 my_nodes = deserialized_jenkins_nodes()
 demo = Demo(my_nodes)
-# demo.run()
-demo.debug()
+demo.run()
+# demo.debug()

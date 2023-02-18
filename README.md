@@ -15,40 +15,39 @@ devops tools and sample infrastructure code
 The nodes files contains short_name, host_address, port, username, and password information in yaml form:
 ```
 nodes:
-  -
-    short_name: vm01
-    host_address: 172.0.0.1
-    port: 22
-    username: joe
-    password: morning_joe
-    jenkins_auth: "joe:************************"
-    jenkins_url: "http://localhost:8080/"
-    capabilities:
-      docker: "20.10.21"
-      java: "11"
-    usage_limits:
-      root_mount: 70
-      cpu: 80
-      mem: 60
-      jvm_heap: 60
-      jvm_stack: 60
-  -
-    short_name: vm02
-    host_address: 172.0.0.2
-    port: 22
-    username: jane
-    password: morning_jane
-    jenkins_auth: "jane:************************"
-    jenkins_url: "http://localhost:8080/"
-    capabilities:
-      docker: "20.10.21"
-      java: "11"
-    usage_limits:
-      root_mount: 70
-      cpu: 80
-      mem: 60
-      jvm_heap: 60
-      jvm_stack: 60
+- capabilities:
+    time_service: timesyncd
+    container_service: docker
+    docker_client_version: 19.03.14
+    docker_server_version: 19.03.14
+    java_version: 1.8.0_352
+  host_address: 1.1.1.1
+  password: ********
+  port: 22
+  short_name: node1
+  operational_limits:
+    cpu: 80
+    jvm_heap: 60
+    jvm_stack: 60
+    mem: 60
+    mount_points:
+	    /: 70
+  username: ********
+- capabilities:
+    time_service: timesyncd
+    java_version: 11.0.17
+  host_address: 1.1.1.2
+  password: ********
+  port: 22
+  short_name: node2
+  operational_limits:
+    cpu: 80
+    jvm_heap: 60
+    jvm_stack: 60
+    mem: 60
+    mount_points:
+	    /: 70
+  username: ********
 ```
 
 ## Investigating the boot process

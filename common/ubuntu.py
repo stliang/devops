@@ -50,7 +50,7 @@ class Ubuntu(Node):
     def get_state(self):
         return self.state
 
-    def get_capabilities(self):
+    def get_life_capabilities(self):
         capabilities = {}
         docker_server_version = self.docker_server_version()
         if docker_server_version:
@@ -70,7 +70,7 @@ class Ubuntu(Node):
             'port': self.port,
             'username': self.username,
             'password': self.password,
-            'capabilities': self.get_capabilities()
+            'capabilities': self.get_life_capabilities()
         }
 
     def set_state(self, state):
@@ -214,3 +214,11 @@ class Ubuntu(Node):
 
     def nvidia_smi(self):
         return self.send("nvidia-smi -L")
+
+    # show CPU utilization
+    def mpstat(self):
+        return self.send("mpstat -P ALL")
+
+    # show memory utilization
+    def free(self):
+        return self.send("free")
