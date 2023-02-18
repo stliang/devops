@@ -81,27 +81,36 @@ class UbuntuHealthCheck(Ubuntu):
                 break
         return [usage_limit > current_usage, output]
 
-# Linux 5.15.0-52-generic (jenkins-vi5) 	02/17/2023 	_x86_64_	(8 CPU)
-
-# 03:27:05 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-# 03:27:05 PM  all    1.36    0.01    0.60    0.01    0.00    0.01    0.00    0.00    0.00   98.01
-# 03:27:05 PM    0    1.96    0.01    0.73    0.01    0.00    0.01    0.00    0.00    0.00   97.28
-# 03:27:05 PM    1    1.63    0.01    0.65    0.01    0.00    0.01    0.00    0.00    0.00   97.70
-# 03:27:05 PM    2    1.37    0.01    0.59    0.01    0.00    0.01    0.00    0.00    0.00   98.02
-# 03:27:05 PM    3    1.28    0.01    0.58    0.01    0.00    0.00    0.00    0.00    0.00   98.12
-# 03:27:05 PM    4    1.17    0.00    0.56    0.01    0.00    0.00    0.00    0.00    0.00   98.25
-# 03:27:05 PM    5    1.15    0.01    0.57    0.01    0.00    0.00    0.00    0.00    0.00   98.26
-# 03:27:05 PM    6    1.16    0.01    0.57    0.02    0.00    0.01    0.00    0.00    0.00   98.23
-# 03:27:05 PM    7    1.18    0.01    0.58    0.01    0.00    0.04    0.00    0.00    0.00   98.18
-    # sample jps output: java-11-openjdk-amd64
-    def cpu_usage_ok(self, usage_limit) -> [bool, str]:
-        output = self.jps()
-        match self.capabilities:
-            case {'java_process': version}:
-                return [version in output, output]
+    def cpu_usage_ok(self) -> [bool, str]:
+        match self.operational_limits:
+            case {'cpu': limit}:
+                lines = self.mpstat().split("\n")
+                for line in lines:
+                    if 'all' in line:
+                        xs = line.split()
+                        current_cpu_usage = 100 - float(xs[len(xs)-1])
+                        if current_cpu_usage < limit:
+                            return [True, lines]
+                        else:
+                            return [False, lines]
+                return [False, lines]
             case _:
-                return [False, "Java process capability not defined in node object"]
+                return [False, "CPU operational limit not defined in node object"]
     
-#                   total        used        free      shared  buff/cache   available
-# Mem:       32744528     2605840    19308660       41124    10830028    29649336
-# Swap:       2097148       33024     2064124
+    def mem_usage_ok(self) -> [bool, str]:
+        match self.operational_limits:
+            case {'mem': limit}:
+                lines = self.free().split("\n")
+                for line in lines:
+                    if 'Mem:' in line:
+                        xs = line.split()
+                        current_mem_usage = float(xs[2])
+                        total_mem = float(xs[1])
+                        usage_percentage = (current_mem_usage / total_mem) * 100
+                        if usage_percentage < limit:
+                            return [True, lines]
+                        else:
+                            return [False, lines]
+                return [False, lines]
+            case _:
+                return [False, "Memory operational limit not defined in node object"]

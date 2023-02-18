@@ -36,6 +36,7 @@ nodes:
 - capabilities:
     time_service: timesyncd
     java_version: 11.0.17
+    java_process: java-11-openjdk-amd64
   host_address: 1.1.1.2
   password: ********
   port: 22

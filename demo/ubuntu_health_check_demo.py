@@ -120,19 +120,28 @@ class Demo():
     def check_operational_limits(self, ubuntu_instance):
         for limit in ubuntu_instance.operational_limits.items():
             match limit:
-                case ('cpu', percentage):
-                    print(f"cpu {percentage}")
+                case ('cpu', _):
+                    match ubuntu_instance.cpu_usage_ok():
+                        case [True,msg]:
+                            print_ok(f"{ubuntu_instance} cpu within {ubuntu_instance.operational_limits['cpu']}%")
+                        case [_,msg]:
+                            print_fail(f"{ubuntu_instance} cpu", msg)
+                        case _:
+                            print_unkown(f"{ubuntu_instance} cpu")
                 case ('mem', percentage):
-                    print(f"mem {percentage}")
-                case ('container_service', percentage):
-                    print(f"container_service {percentage}")
+                    match ubuntu_instance.mem_usage_ok():
+                        case [True,msg]:
+                            print_ok(f"{ubuntu_instance} mem within {ubuntu_instance.operational_limits['mem']}%")
+                        case [_,msg]:
+                            print_fail(f"{ubuntu_instance} mem", msg)
+                        case _:
+                            print_unkown(f"{ubuntu_instance} mem")
                 case ('jvm_heap', percentage):
                     print(f"work in progress ... jvm_heap {percentage}")
                 case ('jvm_stack', percentage):
                     print(f"work in progress ... jvm_stack {percentage}")
                 case ('mount_points', mount_point_limits):
                     for mount_point, limit in mount_point_limits.items():
-                        print(f"mount_point_limit {mount_point} {limit}%")
                         match ubuntu_instance.mount_path_usage_ok(mount_point, limit):
                             case [True,msg]:
                                 print_ok(f"{ubuntu_instance} mount point {mount_point} within {limit}%")
@@ -146,7 +155,7 @@ class Demo():
         #  self.check_mount_path_usage_ok(ubuntu_instance, mount_path="/", usage_limit=70)
 
     def check_all(self, ubuntu_instance):
-        # self.check_capabilities(ubuntu_instance)
+        self.check_capabilities(ubuntu_instance)
         self.check_operational_limits(ubuntu_instance)
     
     def run(self):
