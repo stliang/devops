@@ -10,6 +10,8 @@ class UbuntuHealthCheck(Ubuntu):
 
     def __init__(self, host_address, username, password, operational_limits={}, **kwargs):
         Ubuntu.__init__(self, host_address, username, password, **kwargs)
+        # for k, v in operational_limits.items():
+        #     operational_limits[k] = float(v)
         self.operational_limits = operational_limits
 
     def set_health_check_state(self, state):
@@ -25,7 +27,7 @@ class UbuntuHealthCheck(Ubuntu):
             case {'docker_server_version': version}:
                 return [version in output, output]
             case _:
-                return [False, "Docker capability not defined in node object"]
+                return []
 
     def docker_client_version_ok(self) -> [bool, str]:
         output = self.docker_client_version()
@@ -33,17 +35,14 @@ class UbuntuHealthCheck(Ubuntu):
             case {'docker_client_version': version}:
                 return [version in output, output]
             case _:
-                return [False, "Docker capability not defined in node object"]
+                return []
 
-
-    def mount_ok(self, mount_path) -> [bool, str]:
-        output = self.findmnt_verify()
-        # return ["Success, no errors or warnings detected" in findmnt and mount_path in findmnt, findmnt]
-        return [mount_path in output, output]
+    # def mount_ok(self, mount_path) -> [bool, str]:
+    #     output = self.findmnt_verify()
+    #     return [mount_path in output, output]
 
     def systemd_timesyncd_ok(self) -> [bool, str]:
         output = self.systemd_timesyncd()
-        # return ["active (running)" in output and "Synchronized to time server" in output, output]
         return ["active (running)" in output, output]
 
     def ntp_ok(self) -> [bool, str]:
@@ -57,7 +56,7 @@ class UbuntuHealthCheck(Ubuntu):
             case {'java_version': version}:
                 return [version in output, output]
             case _:
-                return [False, "Java capability not defined in node object"]
+                return []
 
     # sample jps output: java-11-openjdk-amd64
     def java_ps_ok(self) -> [bool, str]:
@@ -66,41 +65,48 @@ class UbuntuHealthCheck(Ubuntu):
             case {'java_process': version}:
                 return [version in output, output]
             case _:
-                return [False, "Java process capability not defined in node object"]
+                return []
 
-    def mount_path_usage_ok(self, mount_path, usage_limit) -> [bool, str]:
+    def mount_path_usage_ok(self) -> [[bool, str]]:
+        return_value = []
         output = self.df_h()
-        # get max usage
         lines = output.split("\n")
-        # If root mount usage is not found, then current usage is consider to be zero
-        current_usage = 0
-        for line in lines:
-            tokens = line.split()
-            if tokens[len(tokens)-1] == mount_path:
-                current_usage = int(tokens[len(tokens)-2].rstrip('%'))
-                break
-        return [usage_limit > current_usage, output]
+        match self.operational_limits:
+            case {'mount_points': mount_point_limits}:
+                for mount_point, limit in mount_point_limits.items():
+                    for line in lines:
+                        tokens = line.split()
+                        if tokens[len(tokens)-1] == mount_point:
+                            current_usage = float(tokens[len(tokens)-2].rstrip('%'))
+                            if current_usage < limit:
+                                return_value.append([True, f'{mount_point} within {limit}%'])
+                            else:
+                                return_value.append([False, f'{mount_point} exceeded {limit}%'])
+                            break
+        return return_value
 
     def cpu_usage_ok(self) -> [bool, str]:
         match self.operational_limits:
             case {'cpu': limit}:
-                lines = self.mpstat().split("\n")
+                output = self.mpstat()
+                lines = output.split("\n")
                 for line in lines:
                     if 'all' in line:
                         xs = line.split()
                         current_cpu_usage = 100 - float(xs[len(xs)-1])
                         if current_cpu_usage < limit:
-                            return [True, lines]
+                            return [True, output]
                         else:
-                            return [False, lines]
-                return [False, lines]
+                            return [False, output]
+                return [False, output]
             case _:
-                return [False, "CPU operational limit not defined in node object"]
+                return []
     
     def mem_usage_ok(self) -> [bool, str]:
         match self.operational_limits:
             case {'mem': limit}:
-                lines = self.free().split("\n")
+                output = self.free()
+                lines = output.split("\n")
                 for line in lines:
                     if 'Mem:' in line:
                         xs = line.split()
@@ -108,9 +114,9 @@ class UbuntuHealthCheck(Ubuntu):
                         total_mem = float(xs[1])
                         usage_percentage = (current_mem_usage / total_mem) * 100
                         if usage_percentage < limit:
-                            return [True, lines]
+                            return [True, output]
                         else:
-                            return [False, lines]
-                return [False, lines]
+                            return [False, output]
+                return [False, output]
             case _:
-                return [False, "Memory operational limit not defined in node object"]
+                return []

@@ -4,116 +4,59 @@ from common.ubuntu_health_check import UbuntuHealthCheck
 from common.report import *
 from common.file_helper import *
 
+def print_check_result(description, result):
+    match result:
+        case [True,_]:
+            print_ok(description)
+        case [False,console_output]:
+            print_fail(description, console_output)
+        case _:
+            print_unkown(description)
+
 class Demo():
     def __init__(
         self,
-        nodes # [{short_name: host_1, host_address: x.x.x.x, port: 22, username: ***, password: ***}, ...]
+        nodes
         ):
         self.nodes = nodes
         self.ubuntu_instances = list(map(lambda node: UbuntuHealthCheck(**node), self.nodes))
 
-    def check_mount_ok(self, ubuntu_instance, mount_path):
-        match ubuntu_instance.mount_ok(mount_path):
-            case [True,msg] if mount_path in msg:
-                print_ok(f"{ubuntu_instance} mount path {mount_path}")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} mount path {mount_path}", msg)
+    def check_time_service_ok(self, ubuntu_instance):
+        match ubuntu_instance.capabilities:
+            case {"time_service": "ntp"}:
+                print_check_result("ntp", ubuntu_instance.ntp_ok())
+            case {"time_service": "timesyncd"}:
+                print_check_result("timesyncd", ubuntu_instance.systemd_timesyncd_ok())
             case _:
-                print_unkown(f"{ubuntu_instance} mount path {mount_path}")
+                print_unkown(f"time_service capability not defined")
 
-    def check_timesyncd_ok(self, ubuntu_instance):
-        match ubuntu_instance.systemd_timesyncd_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} timesyncd")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} timesyncd", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} timesyncd")
+    def check_mount_path_usage_ok(self, ubuntu_instance):
+        results = ubuntu_instance.mount_path_usage_ok()
+        for result in results:
+            print_check_result("mount path usage", result)
 
-    def check_ntp_ok(self, ubuntu_instance):
-        match ubuntu_instance.ntp_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} ntp")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} ntp", msg)
+    def check_container_service_ok(self, ubuntu_instance):
+        match ubuntu_instance.capabilities:
+            case {"container_service": "docker"}:
+                print_check_result("docker service", ubuntu_instance.docker_service_ok())
             case _:
-                print_unkown(f"{ubuntu_instance} ntp")
-
-    def check_mount_path_usage_ok(self, ubuntu_instance, mount_path="/", usage_limit=60):
-        match ubuntu_instance.mount_path_usage_ok(mount_path, usage_limit):
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} mount path {mount_path} usage")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} mount path {mount_path}usage", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} mount path {mount_path} usage")
-
-    def check_java_version_ok(self, ubuntu_instance):
-        match ubuntu_instance.java_version_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} java {ubuntu_instance.capabilities['java_version']}")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} java version", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} java version")
-
-    def check_java_ps_ok(self, ubuntu_instance):
-        match ubuntu_instance.java_ps_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} java process {ubuntu_instance.capabilities['java_process']}")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} java process", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} java process")
-
-    def check_docker_service_ok(self, ubuntu_instance):
-        match ubuntu_instance.docker_service_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} docker service")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} docker service", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} docker service")
-
-    def check_docker_server_version_ok(self, ubuntu_instance):
-        match ubuntu_instance.docker_server_version_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} docker server version {ubuntu_instance.capabilities['docker_server_version']}")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} docker server version", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} docker server version")
-
-    def check_docker_client_version_ok(self, ubuntu_instance):
-        match ubuntu_instance.docker_client_version_ok():
-            case [True,msg]:
-                print_ok(f"{ubuntu_instance} docker server version {ubuntu_instance.capabilities['docker_client_version']}")
-            case [_,msg]:
-                print_fail(f"{ubuntu_instance} docker server version", msg)
-            case _:
-                print_unkown(f"{ubuntu_instance} docker server version")
+                print_check_result("docker service", [])
 
     def check_capabilities(self, ubuntu_instance):
         for capability in ubuntu_instance.capabilities.items():
             match capability:
                 case ('docker_client_version', _):
-                    self.check_docker_client_version_ok(ubuntu_instance)
+                    print_check_result("docker client version", ubuntu_instance.docker_client_version_ok())
                 case ('docker_server_version', _):
-                    self.check_docker_server_version_ok(ubuntu_instance)
+                    print_check_result("docker server version", ubuntu_instance.docker_server_version_ok())
                 case ('container_service', _):
-                    self.check_docker_service_ok(ubuntu_instance)
+                    self.check_container_service_ok(ubuntu_instance)
                 case ('java_version', _):
-                    self.check_java_version_ok(ubuntu_instance)
+                    print_check_result("java version", ubuntu_instance.java_version_ok())
                 case ('java_process', _):
-                    self.check_java_ps_ok(ubuntu_instance)
+                    print_check_result("java process", ubuntu_instance.java_ps_ok())
                 case ('time_service', time_service):
-                    match time_service:
-                        case 'ntp':
-                            self.check_ntp_ok(ubuntu_instance)
-                        case 'timesyncd':
-                            self.check_timesyncd_ok(ubuntu_instance)
-                        case _:
-                            print_unkown(f"{ubuntu_instance} time_service capability not defined")
+                    self.check_time_service_ok(ubuntu_instance)
                 case _:
                     print("No capabilities defined in node object")
     
@@ -121,40 +64,20 @@ class Demo():
         for limit in ubuntu_instance.operational_limits.items():
             match limit:
                 case ('cpu', _):
-                    match ubuntu_instance.cpu_usage_ok():
-                        case [True,msg]:
-                            print_ok(f"{ubuntu_instance} cpu within {ubuntu_instance.operational_limits['cpu']}%")
-                        case [_,msg]:
-                            print_fail(f"{ubuntu_instance} cpu", msg)
-                        case _:
-                            print_unkown(f"{ubuntu_instance} cpu")
+                    print_check_result("CPU utilization", ubuntu_instance.cpu_usage_ok())
                 case ('mem', percentage):
-                    match ubuntu_instance.mem_usage_ok():
-                        case [True,msg]:
-                            print_ok(f"{ubuntu_instance} mem within {ubuntu_instance.operational_limits['mem']}%")
-                        case [_,msg]:
-                            print_fail(f"{ubuntu_instance} mem", msg)
-                        case _:
-                            print_unkown(f"{ubuntu_instance} mem")
+                    print_check_result("Memory utilization", ubuntu_instance.mem_usage_ok())
                 case ('jvm_heap', percentage):
                     print(f"work in progress ... jvm_heap {percentage}")
                 case ('jvm_stack', percentage):
                     print(f"work in progress ... jvm_stack {percentage}")
-                case ('mount_points', mount_point_limits):
-                    for mount_point, limit in mount_point_limits.items():
-                        match ubuntu_instance.mount_path_usage_ok(mount_point, limit):
-                            case [True,msg]:
-                                print_ok(f"{ubuntu_instance} mount point {mount_point} within {limit}%")
-                            case [_,msg]:
-                                print_fail(f"{ubuntu_instance} mount point {mount_point}", msg)
-                            case _:
-                                print_unkown(f"{ubuntu_instance} mount point")
+                case ('mount_points', _):
+                    self.check_mount_path_usage_ok(ubuntu_instance)
                 case _:
                     print("No operational limits defined in node object")
-        # self.check_mount_ok(ubuntu_instance, "/")
-        #  self.check_mount_path_usage_ok(ubuntu_instance, mount_path="/", usage_limit=70)
 
     def check_all(self, ubuntu_instance):
+        print(f"\nChecking {ubuntu_instance}")
         self.check_capabilities(ubuntu_instance)
         self.check_operational_limits(ubuntu_instance)
     
