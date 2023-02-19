@@ -120,3 +120,19 @@ class UbuntuHealthCheck(Ubuntu):
                 return [False, output]
             case _:
                 return []
+
+    def time_service_ok(self) -> [bool, str]:
+        match self.capabilities:
+            case {"time_service": "ntp"}:
+                return self.ntp_ok()
+            case {"time_service": "timesyncd"}:
+                return self.systemd_timesyncd_ok()
+            case _:
+                return []
+
+    def container_service_ok(self) -> [bool, str]:
+        match self.capabilities:
+            case {"container_service": "docker"}:
+                return self.docker_service_ok()
+            case _:
+                return []

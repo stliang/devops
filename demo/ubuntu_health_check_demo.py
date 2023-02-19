@@ -21,26 +21,10 @@ class Demo():
         self.nodes = nodes
         self.ubuntu_instances = list(map(lambda node: UbuntuHealthCheck(**node), self.nodes))
 
-    def check_time_service_ok(self, ubuntu_instance):
-        match ubuntu_instance.capabilities:
-            case {"time_service": "ntp"}:
-                print_check_result("ntp", ubuntu_instance.ntp_ok())
-            case {"time_service": "timesyncd"}:
-                print_check_result("timesyncd", ubuntu_instance.systemd_timesyncd_ok())
-            case _:
-                print_unkown(f"time_service capability not defined")
-
     def check_mount_path_usage_ok(self, ubuntu_instance):
         results = ubuntu_instance.mount_path_usage_ok()
         for result in results:
             print_check_result("mount path usage", result)
-
-    def check_container_service_ok(self, ubuntu_instance):
-        match ubuntu_instance.capabilities:
-            case {"container_service": "docker"}:
-                print_check_result("docker service", ubuntu_instance.docker_service_ok())
-            case _:
-                print_check_result("docker service", [])
 
     def check_capabilities(self, ubuntu_instance):
         for capability in ubuntu_instance.capabilities.items():
@@ -50,13 +34,13 @@ class Demo():
                 case ('docker_server_version', _):
                     print_check_result("docker server version", ubuntu_instance.docker_server_version_ok())
                 case ('container_service', _):
-                    self.check_container_service_ok(ubuntu_instance)
+                    print_check_result("container service", ubuntu_instance.container_service_ok())
                 case ('java_version', _):
                     print_check_result("java version", ubuntu_instance.java_version_ok())
                 case ('java_process', _):
                     print_check_result("java process", ubuntu_instance.java_ps_ok())
-                case ('time_service', time_service):
-                    self.check_time_service_ok(ubuntu_instance)
+                case ('time_service', _):
+                    print_check_result("time service", ubuntu_instance.time_service_ok())
                 case _:
                     print("No capabilities defined in node object")
     
