@@ -222,3 +222,7 @@ class Ubuntu(Node):
     # show memory utilization
     def free(self):
         return self.send("free")
+
+    # show OS version
+    def lsb_release(self):
+        return self.send("lsb_release -a")
