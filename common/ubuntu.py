@@ -226,3 +226,11 @@ class Ubuntu(Node):
     # show OS version
     def lsb_release(self):
         return self.send("lsb_release -a")
+
+    # list services
+    def list_services(self):
+        return self.send("systemctl list-units --type=service --no-pager")
+         
+    # get service log
+    def service_log(self, service_name):
+        return self.send(f"sudo journalctl -u {service_name}")
