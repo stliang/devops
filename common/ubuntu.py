@@ -234,3 +234,7 @@ class Ubuntu(Node):
     # get service log
     def service_log(self, service_name):
         return self.send(f"sudo journalctl -u {service_name}")
+
+    # list installed packages
+    def list_installed_packages(self):
+        return self.send(f"sudo apt list --installed")
