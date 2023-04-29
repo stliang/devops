@@ -33,6 +33,13 @@ class Demo():
 
 # Demo code coverage test
 sonarqube_tests = deserialized_sonarqube_tests()
+
+# sonarqube_tests YAML file example:
+# address: https://sonarqube.mycompany.com
+# username: squ_*****************************
+# test_cases:
+#   - {min: 75.0, component: FeatureA, branch: main, metric_key: coverage}
 print(sonarqube_tests)
+
 demo = Demo(**sonarqube_tests)
 demo.run()
