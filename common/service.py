@@ -15,10 +15,11 @@ class Service(object):
     def __str__(self):
         return f"{self.service_address} {self.extra_kwargs}"
 
-    def get_dict(self) -> dict:
+    def get_dict(self, url="") -> dict:
+        my_url=url if url else self.service_address
         try:
             response = requests.get(
-                url=self.service_address,
+                url=my_url,
                 auth=HTTPBasicAuth(self.username, self.password),
                 timeout=self.timeout
             )

@@ -26,6 +26,15 @@ def deserialized_nodes(file_path=C.NODE_FILE_PATH) -> [dict]:
 def deserialized_jenkins_nodes(file_path=C.JENKINS_NODE_FILE_PATH) -> [dict]:
     return deserialized_nodes(file_path)
 
+def deserialized_sonarqube_tests(file_path=C.SONARQUBE_FILE_PATH) -> dict:
+    sonarqube_test = {}
+    with Path(file_path).open("r") as stream:
+        try:
+            sonarqube_test = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    return sonarqube_test
+
 def deserialized_repos() -> [str]:
     repos = []
     repoFilenamesList = glob.glob(C.GITREPO_FILE_PATH)

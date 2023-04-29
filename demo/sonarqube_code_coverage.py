@@ -1,25 +1,38 @@
 import sys
 sys.path.append('../')
 from common.sonarqube import SonarQube
-# from common.report import *
-# from common.file_helper import *
+from common.report import *
+from common.file_helper import *
 
 class Demo():
     def __init__(
         self,
-        sonarqube_url,
-        code_coverage_test_list
+        address,
+        username,
+        test_cases
         ):
-        self.sonarqube_url = sonarqube_url
-        self.code_coverage_test_list = code_coverage_test_list
+        self.test_cases = test_cases
+        self.sonarqube = SonarQube(address, username)
 
-    def check_code_coverage(self, code_coverage_test_list):
-        return []
+    def check_code_coverage(self, component, branch, min) -> bool:
+        print(f"calling sonarqube get_code_coverage with {component}, {branch}, {min}")
+        match self.sonarqube.get_code_coverage(component, branch):
+            case [value]:
+                return value >= min
+            case _:
+                return False
 
-    def run(self):
-        return []
+    def run(self) -> [bool]:
+        for test_case in self.test_cases:
+            print(f"DEBUG test_case:\n{test_case}")
+            match test_case:
+                case {'min': min, 'component': component, 'branch': branch, 'metric_key': 'coverage'}:
+                    return [self.check_code_coverage(component, branch, min)]
+                case _:
+                    return []
 
 # Demo code coverage test
-code_coverage_metadata = deserialized_code_coverage_metadata()
-demo = Demo(code_coverage_metadata["sonarqube_url"], code_coverage_metadata["list"])
+sonarqube_tests = deserialized_sonarqube_tests()
+print(sonarqube_tests)
+demo = Demo(**sonarqube_tests)
 demo.run()
