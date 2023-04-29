@@ -13,7 +13,6 @@ class SonarQube(Service):
     def get_code_coverage(self, component, branch) -> [float]:
         url = f"{self.service_address}/api/measures/component?component={component}&metricKeys=coverage&branch={branch}"
         data = self.get_dict(url=url)
-        print(f"DEBUG data from SonarQube:\n{data}")
         match data:
             case {'component': {'key': _, 'name': _, 'qualifier': _, 'measures': [{'metric': 'coverage', 'value': value, 'bestValue': _}],'branch': _}}:
                 return [float(value)]

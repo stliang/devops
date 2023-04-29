@@ -26,6 +26,11 @@ def deserialized_nodes(file_path=C.NODE_FILE_PATH) -> [dict]:
 def deserialized_jenkins_nodes(file_path=C.JENKINS_NODE_FILE_PATH) -> [dict]:
     return deserialized_nodes(file_path)
 
+# sonarqube_tests YAML file example:
+# address: https://sonarqube.mycompany.com
+# username: squ_*****************************
+# test_cases:
+#   - {min: 75.0, component: FeatureA, branch: main, metric_key: coverage}
 def deserialized_sonarqube_tests(file_path=C.SONARQUBE_FILE_PATH) -> dict:
     sonarqube_test = {}
     with Path(file_path).open("r") as stream:
