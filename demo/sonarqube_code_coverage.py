@@ -22,12 +22,12 @@ class Demo():
                 return False
 
     def test(self) -> [(bool, str)]:
+        results = []
         for test_case in self.test_cases:
             match test_case:
                 case {'min': min, 'component': component, 'branch': branch, 'metric_key': 'coverage'}:
-                    return [(self.check_code_coverage(component, branch, min), f"{component} {branch}")]
-                case _:
-                    return []
+                    results.append((self.check_code_coverage(component, branch, min), f"{component} {branch}"))
+        return results
 
     def run(self):
         failures = ""
