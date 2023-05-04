@@ -20,11 +20,10 @@ def parse_resource_output(console_msg, line_key_reg, line_item_index):
     value = ""
     lines = console_msg.split("\n")
     for line in lines:
-        # print(f"{line}")
-        # xs = line.split()
         if p.match(line):
             xs = line.split()
             value = xs[line_item_index]
+            break
     return value
 
 class Demo():
@@ -49,7 +48,7 @@ class Demo():
             cpu_count = parse_resource_output(lscpu, "^CPU\(s\):.*", 1)
             print(f"{ubuntu_instance.short_name},{ubuntu_instance.host_address},{disk_size},{mem_size},{cpu_count}")
 
-# Demo Ubuntu get root mount disk size
+# Demo Ubuntu get system resource stats
 my_nodes = deserialized_nodes()
 demo = Demo(my_nodes)
 demo.run()
