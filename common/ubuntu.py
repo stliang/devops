@@ -219,9 +219,17 @@ class Ubuntu(Node):
     def mpstat(self):
         return self.send("mpstat -P ALL")
 
+    # show CPU utilization
+    def lscpu(self):
+        return self.send("lscpu")
+
     # show memory utilization
     def free(self):
         return self.send("free")
+
+    # show memory utilization
+    def free_h(self):
+        return self.send("free -h")
 
     # show OS version
     def lsb_release(self):
