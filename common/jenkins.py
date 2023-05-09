@@ -51,18 +51,29 @@ class Jenkins(Ubuntu):
     # Jenkins when using container to build creates root owned files which prevents ws clean up
     # Run this method as root would do the workspace clean up
     def ws_clean(self, dir_min_age_in_sec=1800):
-        p = re.compile(".*@tmp$")
+        p = re.compile(".*@tmp$|.*@tmp@tmp$")
         dirs = list_dirs(self.workspace)
         tmp_dirs = list(filter(lambda x: p.match(x), dirs))
         job_dirs = list(map(lambda y: y.split("@tmp")[0], tmp_dirs))
+        # Jenkins active jobs should have two directories of either "a" and "a@tmp | a@tmp@tmp" OR "a" and "a_ws-cleanup_.*"
+        # In active job should not have a directory of "a":
         inactive_job_dirs = list(filter(lambda z: not os.path.isdir(z), job_dirs))
-        for x in inactive_job_dirs:
-            tmp_dir = f"{x}@tmp"
-            dir_stat = os.stat(tmp_dir)
-            last_modified_in_seconds = (time.time()-dir_stat.st_mtime)
-            if last_modified_in_seconds > dir_min_age_in_sec:
-                dir_pattern = f"{x}@tmp$|{x}_ws-cleanup_[0-9]+$"
-                pattern = re.compile(dir_pattern)
-                dirs_to_delete = list(filter(lambda x: pattern.match(x), dirs))
-                for a_dir in dirs_to_delete:
-                    shutil.rmtree(a_dir)
+
+        #print(f"DEBUG: inactive_job_dirs dict = {inactive_job_dirs}")
+        for tmp_dir in tmp_dirs:
+            try:
+                dir_stat = os.stat(tmp_dir)
+                last_modified_in_seconds = (time.time()-dir_stat.st_mtime)
+                x = tmp_dir.split("@tmp")[0]
+                #print(f"DEBUG: x = {x} {tmp_dir} {last_modified_in_seconds}")
+                # Delete directories of finished job that are 30 minutes old
+                if last_modified_in_seconds > dir_min_age_in_sec and x in inactive_job_dirs:
+                    #print("DEBUG: IN IF")
+                    dir_pattern = f"{x}@tmp$|{x}@tmp@tmp$|{x}_ws-cleanup_[0-9]+$"
+                    pattern = re.compile(dir_pattern)
+                    dirs_to_delete = list(filter(lambda x: pattern.match(x), dirs))
+                    for a_dir in dirs_to_delete:
+                        #print(f"DEBUG: deleting {a_dir}")
+                        shutil.rmtree(a_dir)
+            except FileNotFoundError:
+                print("Directory does not exist, no need to delete.")
