@@ -5,13 +5,19 @@
 # 2.) Jenkins node is a remote node with ssh support
 # 3.) Jenkins CLI Java client is installed.  Note that python-jenkins library is not used because library can be out of date and for better security control
 # 4.) Jenkins node is either a controller or an agent with docker engine
+import os 
+import re
+import shutil
+import time
+
 from .ubuntu import Ubuntu
 
 class Jenkins(Ubuntu):
 
-    def __init__(self, host_address, username, password, jenkins_auth="", short_name="Jenkins", jenkins_url="", **kwargs):
+    def __init__(self, host_address, username, password, jenkins_auth="", short_name="Jenkins", jenkins_url="", workspace="/home/jenkins/workspace", **kwargs):
         Ubuntu.__init__(self, host_address, username, password, short_name, **kwargs)
         self.jenkins_auth = jenkins_auth
+        self.workspace = workspace
         match jenkins_url:
             case "":
                 self.jenkins_url = f"http://{self.host_address}"
@@ -33,6 +39,30 @@ class Jenkins(Ubuntu):
                 cmd = f"java -jar jenkins-cli.jar -s {self.jenkins_url} -auth {self.jenkins_auth} list-jobs {view_name}"
                 return self.send(cmd).split()
 
-    # Check docker usage of host disk
+    def list_dirs(self) -> [str]:
+        dirs = []
+        if os.path.isdir(self.workspace):
+            for it in os.scandir(self.workspace):
+                if it.is_dir():
+                    dirs.append(it.path)
+                    dirs += list_dirs(it.path)
+        return dirs
 
-    # Delete docker containers whithout tag
+    # Jenkins when using container to build creates root owned files which prevents ws clean up
+    # Run this method as root would do the workspace clean up
+    def ws_clean(self, dir_min_age_in_sec=1800):
+        p = re.compile(".*@tmp$")
+        dirs = list_dirs(self.workspace)
+        tmp_dirs = list(filter(lambda x: p.match(x), dirs))
+        job_dirs = list(map(lambda y: y.split("@tmp")[0], tmp_dirs))
+        inactive_job_dirs = list(filter(lambda z: not os.path.isdir(z), job_dirs))
+        for x in inactive_job_dirs:
+            tmp_dir = f"{x}@tmp"
+            dir_stat = os.stat(tmp_dir)
+            last_modified_in_seconds = (time.time()-dir_stat.st_mtime)
+            if last_modified_in_seconds > dir_min_age_in_sec:
+                dir_pattern = f"{x}@tmp$|{x}_ws-cleanup_[0-9]+$"
+                pattern = re.compile(dir_pattern)
+                dirs_to_delete = list(filter(lambda x: pattern.match(x), dirs))
+                for a_dir in dirs_to_delete:
+                    shutil.rmtree(a_dir)

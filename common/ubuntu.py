@@ -12,6 +12,17 @@ def parse_action(in_string, separator_string) -> dict:
         out[k] = v
     return out
 
+def parse_console_output(console_msg, line_key_reg, line_item_index):
+    p = re.compile(line_key_reg)
+    value = ""
+    lines = console_msg.split("\n")
+    for line in lines:
+        if p.match(line):
+            xs = line.split()
+            value = xs[line_item_index]
+            break
+    return value
+
 def parse_os_release(in_string) -> dict:
     return parse_action(in_string, "=")
 
