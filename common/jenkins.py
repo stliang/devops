@@ -39,7 +39,7 @@ class Jenkins(Ubuntu):
                 cmd = f"java -jar jenkins-cli.jar -s {self.jenkins_url} -auth {self.jenkins_auth} list-jobs {view_name}"
                 return self.send(cmd).split()
 
-    def list_dirs(self) -> [str]:
+    def list_ws_dirs(self) -> [str]:
         dirs = []
         if os.path.isdir(self.workspace):
             for it in os.scandir(self.workspace):
@@ -52,7 +52,7 @@ class Jenkins(Ubuntu):
     # Run this method as root would do the workspace clean up
     def ws_clean(self, dir_min_age_in_sec=1800):
         p = re.compile(".*@tmp$|.*@tmp@tmp$")
-        dirs = list_dirs(self.workspace)
+        dirs = list_ws_dirs()
         tmp_dirs = list(filter(lambda x: p.match(x), dirs))
         job_dirs = list(map(lambda y: y.split("@tmp")[0], tmp_dirs))
         # Jenkins active jobs should have two directories of either "a" and "a@tmp | a@tmp@tmp" OR "a" and "a_ws-cleanup_.*"
