@@ -52,4 +52,19 @@ RUN wget -q $ARTIFACTORY/Files/sonar-scanner/$SONAR_SCANNER_FILE \
     && unzip -q $SONAR_SCANNER_FILE -d / \
     && rm -f $SONAR_SCANNER_FILE
 
-WORKDIR /home/jenkins
+ENV WORKDIR=/home/jenkins
+
+# Static GID/UID is useful for chown'ing files outside the container where
+# such a user does not exist.
+RUN addgroup --gid 1002 --system jenkins \
+ && adduser  --uid 1002 --system --ingroup jenkins --home ${WORKDIR} --disabled-password --gecos '' jenkins
+
+RUN adduser jenkins sudo
+
+# Disable system from asking for password when sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+WORKDIR ${WORKDIR}
+
+# Use the non-root user to run or bulid our application
+USER jenkins
