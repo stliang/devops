@@ -1,0 +1,85 @@
+ARG CI_BASE_IMAGE=ubuntu:20.04
+FROM $CI_BASE_IMAGE as base
+
+ARG BASE_FEATURES="cmake,python3,git"
+ARG KERNEL_VERSION="5.4.0-65-generic"
+ARG NAME="CI Base Image"
+ARG NONE_ROOT_USERNAME="jenkins"
+ARG MAINTAINER="devops"
+ARG OS=$CI_BASE_IMAGE
+ARG SONAR_INSTANCE="http://localhost"
+ARG VCS_REF
+ARG VCS_URL
+
+# Labels (http://label-schema.org/rc1/#label-semantics)
+LABEL base_features=$BASE_FEATURES
+LABEL kernel_version=$KERNEL_VERSION
+LABEL maintainer=$MAINTAINER
+LABEL org.label-schema.name=$NAME
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.vcs-ref=$VCS_REF
+LABEL org.label-schema.vcs-url=$VCS_URL
+LABEL os=$OS
+
+ENV KERNEL_VERSION=$KERNEL_VERSION
+ENV TZ=America/Los_Angeles
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBCONF_NONINTERACTIVE_SEEN=true
+
+# Minimum needed to run in CI environment
+
+## Add none root user account with sudo privilege
+RUN apt update && apt -yq --no-install-recommends install sudo
+
+## Static GID/UID is useful for chown'ing files outside the container where
+## such a user does not exist.
+RUN addgroup --gid 996 --system $NONE_ROOT_USERNAME \
+ && adduser  --uid 996 --system --ingroup $NONE_ROOT_USERNAME --home ${WORKDIR} --disabled-password --gecos '' $NONE_ROOT_USERNAME
+ 
+RUN adduser $NONE_ROOT_USERNAME sudo
+ 
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> \
+/etc/sudoers
+
+## Install tools needed to run sonarqube, whitesource scanner, and expand build capabilities
+RUN apt-get update && apt-get install -y \
+    apt-utils \
+    build-essential \
+    ccache \
+    cmake \
+    curl \
+    git \
+    jq \
+    python3-pip \
+    wget \
+    linux-headers-${KERNEL_VERSION}
+
+RUN pip install gcovr ipython
+
+FROM base as with_java
+
+ARG ARTIFACTORY_URL="http://localhost/artifactory"
+## Install tools needed to run sonarqube, whitesource scanner, and expand build capabilities
+RUN apt-get update && apt-get install -y \
+    default-jdk
+
+BASE_FEATURES="${BASE_FEATURES},cmake,python3,git"
+LABEL base_features=$BASE_FEATURES
+
+## TODO: Download sonar build-wrapper
+ENV SONAR_WRAPPER_FILE=build-wrapper-linux-x86.zip
+ENV SONAR_INSTANCE=$SONAR_INSTANCE
+RUN curl -OL ${SONAR_INSTANCE}/static/cpp/$SONAR_WRAPPER_FILE \
+    && unzip -q $SONAR_WRAPPER_FILE -d / \
+    && rm -f $SONAR_WRAPPER_FILE
+
+## TODO: Download sonar-scanner
+ENV ARTIFACTORY=$ARTIFACTORY_URL
+ENV SONAR_SCANNER_FILE=sonar-scanner-cli-4.6.2.2472-linux.zip
+RUN wget -q $ARTIFACTORY/sonar-scanner/$SONAR_SCANNER_FILE \
+    && unzip -q $SONAR_SCANNER_FILE -d / \
+    && rm -f $SONAR_SCANNER_FILE
+
+## Whitesource Unified Agent
+
