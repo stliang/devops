@@ -8,15 +8,25 @@ ARG KERNEL_VERSION="5.4.0-65-generic"
 ARG NAME="CI Base Image"
 ARG NONE_ROOT_USERNAME="jenkins"
 ARG MAINTAINER="devops"
-ARG OS="ubuntu:${UBUNTU_VERSION}"
-ARG SONAR_INSTANCE="http://localhost"
-
+ARG UBUNTU_VERSION
 # commit ID or branch tag
 ARG VCS_REF=""
 # Repo URL
 ARG VCS_URL=""
 
+ENV DEBCONF_NONINTERACTIVE_SEEN=true
+ENV DEBIAN_FRONTEND=noninteractive
 ENV IMAGE_FEATURES="cmake,python3,git"
+ENV IMAGE_REPO=$IMAGE_REPO
+ENV KERNEL_VERSION=$KERNEL_VERSION
+ENV NAME=$NAME
+ENV NONE_ROOT_USERNAME=$NONE_ROOT_USERNAME
+ENV MAINTAINER=$MAINTAINER
+ENV OS="ubuntu:${UBUNTU_VERSION}"
+ENV TZ=America/Los_Angeles
+ENV VCS_REF=$VCS_REF
+ENV VCS_URL=$VCS_URL
+
 # Labels (http://label-schema.org/rc1/#label-semantics)
 LABEL image_features=${IMAGE_FEATURES}
 LABEL kernel_version=$KERNEL_VERSION
@@ -25,13 +35,8 @@ LABEL org.label-schema.name=$NAME
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.vcs-url=$VCS_URL
-LABEL os=$OS
 
-ENV KERNEL_VERSION=$KERNEL_VERSION
-ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENV DEBIAN_FRONTEND=noninteractive
-ENV DEBCONF_NONINTERACTIVE_SEEN=true
 
 # Minimum needed to run in CI environment
 
@@ -68,15 +73,15 @@ FROM base as with_java
 
 ARG ARTIFACTORY_URL="http://localhost/artifactory"
 ARG JDK="default-jdk"
+ARG SONAR_INSTANCE="http://localhost"
+
+ENV IMAGE_FEATURES="${IMAGE_FEATURES},${JDK}"
 
 LABEL java=$JDK
+LABEL image_features=${IMAGE_FEATURES}
 
 ## Install tools needed to run sonarqube, whitesource scanner, and expand build capabilities
 RUN apt-get update && apt-get install -y ${JDK}
-
-RUN echo ${IMAGE_FEATURES}
-
-LABEL image_features="${IMAGE_FEATURES},${JDK}"
 
 # ## TODO: Download sonar build-wrapper
 # ENV SONAR_WRAPPER_FILE=build-wrapper-linux-x86.zip
