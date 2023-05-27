@@ -1,18 +1,24 @@
-ARG CI_BASE_IMAGE=ubuntu:20.04
-FROM $CI_BASE_IMAGE as base
+ARG UBUNTU_VERSION=20.04
+ARG IMAGE_REPO=""
 
-ARG BASE_FEATURES="cmake,python3,git"
+# Use: docker build --target base -t devops_base .
+FROM ${IMAGE_REPO}ubuntu:${UBUNTU_VERSION} as base
+
 ARG KERNEL_VERSION="5.4.0-65-generic"
 ARG NAME="CI Base Image"
 ARG NONE_ROOT_USERNAME="jenkins"
 ARG MAINTAINER="devops"
-ARG OS=$CI_BASE_IMAGE
+ARG OS="ubuntu:${UBUNTU_VERSION}"
 ARG SONAR_INSTANCE="http://localhost"
-ARG VCS_REF
-ARG VCS_URL
 
+# commit ID or branch tag
+ARG VCS_REF=""
+# Repo URL
+ARG VCS_URL=""
+
+ENV IMAGE_FEATURES="cmake,python3,git"
 # Labels (http://label-schema.org/rc1/#label-semantics)
-LABEL base_features=$BASE_FEATURES
+LABEL image_features=${IMAGE_FEATURES}
 LABEL kernel_version=$KERNEL_VERSION
 LABEL maintainer=$MAINTAINER
 LABEL org.label-schema.name=$NAME
@@ -35,7 +41,7 @@ RUN apt update && apt -yq --no-install-recommends install sudo
 ## Static GID/UID is useful for chown'ing files outside the container where
 ## such a user does not exist.
 RUN addgroup --gid 996 --system $NONE_ROOT_USERNAME \
- && adduser  --uid 996 --system --ingroup $NONE_ROOT_USERNAME --home ${WORKDIR} --disabled-password --gecos '' $NONE_ROOT_USERNAME
+ && adduser  --uid 996 --system --ingroup $NONE_ROOT_USERNAME --home /home/${NONE_ROOT_USERNAME} --disabled-password --gecos '' $NONE_ROOT_USERNAME
  
 RUN adduser $NONE_ROOT_USERNAME sudo
  
@@ -57,29 +63,34 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install gcovr ipython
 
+# Use: docker build --target with_java -t devops_base_with_java .
 FROM base as with_java
 
 ARG ARTIFACTORY_URL="http://localhost/artifactory"
+ARG JDK="default-jdk"
+
+LABEL java=$JDK
+
 ## Install tools needed to run sonarqube, whitesource scanner, and expand build capabilities
-RUN apt-get update && apt-get install -y \
-    default-jdk
+RUN apt-get update && apt-get install -y ${JDK}
 
-BASE_FEATURES="${BASE_FEATURES},cmake,python3,git"
-LABEL base_features=$BASE_FEATURES
+RUN echo ${IMAGE_FEATURES}
 
-## TODO: Download sonar build-wrapper
-ENV SONAR_WRAPPER_FILE=build-wrapper-linux-x86.zip
-ENV SONAR_INSTANCE=$SONAR_INSTANCE
-RUN curl -OL ${SONAR_INSTANCE}/static/cpp/$SONAR_WRAPPER_FILE \
-    && unzip -q $SONAR_WRAPPER_FILE -d / \
-    && rm -f $SONAR_WRAPPER_FILE
+LABEL image_features="${IMAGE_FEATURES},${JDK}"
 
-## TODO: Download sonar-scanner
-ENV ARTIFACTORY=$ARTIFACTORY_URL
-ENV SONAR_SCANNER_FILE=sonar-scanner-cli-4.6.2.2472-linux.zip
-RUN wget -q $ARTIFACTORY/sonar-scanner/$SONAR_SCANNER_FILE \
-    && unzip -q $SONAR_SCANNER_FILE -d / \
-    && rm -f $SONAR_SCANNER_FILE
+# ## TODO: Download sonar build-wrapper
+# ENV SONAR_WRAPPER_FILE=build-wrapper-linux-x86.zip
+# ENV SONAR_INSTANCE=$SONAR_INSTANCE
+# RUN curl -OL ${SONAR_INSTANCE}/static/cpp/$SONAR_WRAPPER_FILE \
+#     && unzip -q $SONAR_WRAPPER_FILE -d / \
+#     && rm -f $SONAR_WRAPPER_FILE
 
-## Whitesource Unified Agent
+# ## TODO: Download sonar-scanner
+# ENV ARTIFACTORY=$ARTIFACTORY_URL
+# ENV SONAR_SCANNER_FILE=sonar-scanner-cli-4.6.2.2472-linux.zip
+# RUN wget -q $ARTIFACTORY/sonar-scanner/$SONAR_SCANNER_FILE \
+#     && unzip -q $SONAR_SCANNER_FILE -d / \
+#     && rm -f $SONAR_SCANNER_FILE
+
+# ## Whitesource Unified Agent
 
