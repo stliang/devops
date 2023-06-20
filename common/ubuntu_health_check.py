@@ -136,3 +136,7 @@ class UbuntuHealthCheck(Ubuntu):
                 return self.docker_service_ok()
             case _:
                 return []
+
+    def sntp_ok(self, ntp_server) -> [bool, str]:
+        output = self.sntp(ntp_server)
+        return [not "no UCST response" in output, output]

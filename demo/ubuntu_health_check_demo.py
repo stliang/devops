@@ -60,6 +60,14 @@ class Demo():
                 case _:
                     print("No operational limits defined in node object")
 
+    def check_sntp_ok(self, ubuntu_instance, ntp_server):
+        result = ubuntu_instance.sntp_ok(ntp_server)
+        match result:
+            case (True, output):
+                print_check_result("sntp can reach {ntp_server}: ", output)
+            case _:
+                print("sntp can not reach {ntp_server}")
+
     def check_all(self, ubuntu_instance):
         print(f"\nChecking {ubuntu_instance}")
         self.check_capabilities(ubuntu_instance)
@@ -78,8 +86,13 @@ class Demo():
         print(f"processing node: {ubuntu_instance}")
         save_jenkins_nodes_state(output)
 
+    def debug_sntp(self):
+        for ubuntu_instance in self.ubuntu_instances:
+            self.check_sntp_ok(ubuntu_instance, "10.44.36.11")
+
 # Demo Ubuntu Health Check on Jenkins Nodes
 my_nodes = deserialized_jenkins_nodes()
 demo = Demo(my_nodes)
-demo.run()
+# demo.run()
 # demo.debug()
+demo.debug_sntp()

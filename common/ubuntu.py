@@ -137,6 +137,9 @@ class Ubuntu(Node):
     def boot_log(self):
         return self.send("sudo cat /var/log/boot.log")
 
+    def sntp(self, ntp_server):
+        return self.send(f"sudo sntp -S {ntp_server}")
+
     def systemctl_status(self, unit):
         return self.send(f"systemctl status -l {unit}") # TODO test
 
@@ -195,6 +198,9 @@ class Ubuntu(Node):
 
     def ntp(self, cmd="status"):
         return self.systemctl_action("ntp.service", cmd)
+
+    def date_since_epoch(self):
+        return self.send("date +%s")
 
     def docker_service(self, cmd="status"):
         return self.systemctl_action("docker", cmd)
