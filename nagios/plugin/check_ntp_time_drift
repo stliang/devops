@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Save this file as executable as check_ntp_time_sync in the /usr/local/nagios/libexec directory of Nagios server
+# Save this file as executable in the /usr/local/nagios/libexec directory of Nagios server
 import warnings
 warnings.filterwarnings('ignore')
 
