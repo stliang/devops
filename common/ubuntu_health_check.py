@@ -140,3 +140,10 @@ class UbuntuHealthCheck(Ubuntu):
     def sntp_ok(self, ntp_server) -> [bool, str]:
         output = self.sntp(ntp_server)
         return [not "no UCST response" in output, output]
+
+    def time_drift_from_controller_ok(self, tolerance = 300) -> [bool, str]:
+        delta_seconds = self.time_drift_from_controller()
+        if delta_seconds > tolerance or delta_seconds < -(tolerance):
+            return [False, f"time drifted by {delta_seconds} seconds"]
+        else:
+            return [True, "time within 5 seconds tolerance"]

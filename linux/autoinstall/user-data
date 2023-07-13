@@ -1,0 +1,123 @@
+#cloud-config
+autoinstall:
+  apt:
+    disable_components: []
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches:
+      - amd64
+      - i386
+      uri: http://us.archive.ubuntu.com/ubuntu
+    - arches:
+      - default
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  drivers:
+    install: false
+  kernel:
+    package: linux-generic
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
+  network:
+    ethernets:
+      enp26s0f0:
+        dhcp4: true
+      enp26s0f1:
+        dhcp4: true
+      enp2s0:
+        dhcp4: true
+      enp3s0:
+        dhcp4: true
+    version: 2
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  packages: 
+    - git
+    - vim
+    - emacs
+    - wget
+    - net-tools
+    - curl
+    - ca-certificates-java
+    - openjdk-11-jdk
+    - openssh-server
+    - cmake
+    - gnome-session-flashback
+    - libcap-dev
+    - libpng-dev
+    - libpng16-16
+    - libboost-all-dev
+    - libfreetype6-dev
+    - libcpprest-dev
+    - libevent-dev
+    - libopenipmi-dev
+    - libsdl2-image-dev
+    - libsdl2-dev
+    - libjpeg-dev
+    - tcsh
+    - python3-pip
+    - python-tk
+    - cmake-curses-gui
+    - nginx
+    - apt-transport-https
+    - tree
+    - linux-source
+    - linux-modules-extra-5.4.0-126-generic
+    - ubuntu-desktop
+  storage:
+    config:
+    - {type: disk, ptable: gpt, path: /dev/sda, wipe: superblock-recursive, preserve: false, name: '', grub_device: false, id: disk-sda}
+    - {type: partition, device: disk-sda, size: 1G,    wipe: superblock, flag: boot, number: 1, preserve: false, grub_device: true,  id: partition-0}
+    - {type: partition, device: disk-sda, size: 100G,  wipe: superblock, flag: '',   number: 2, preserve: false, grub_device: false, id: partition-1}
+    - {type: partition, device: disk-sda, size: 50G,   wipe: superblock, flag: '',   number: 3, preserve: false, grub_device: false, id: partition-2}
+    - {type: partition, device: disk-sda, size: 50G,   wipe: superblock, flag: swap, number: 4, preserve: false, grub_device: false, id: partition-3}
+    - {type: partition, device: disk-sda, size: -1,    wipe: superblock, flag: '',   number: 5, preserve: false, grub_device: false, id: partition-4}
+    - {type: format, fstype: fat32, volume: partition-0, preserve: false, id: format-0}
+    - {type: format, fstype: ext4,  volume: partition-1, preserve: false, id: format-1}
+    - {type: format, fstype: ext4,  volume: partition-2, preserve: false, id: format-2}
+    - {type: format, fstype: swap,  volume: partition-3, preserve: false, id: format-3}
+    - {type: format, fstype: ext4,  volume: partition-4, preserve: false, id: format-4}
+    - {type: mount, path: /,                  device: format-1, id: mount-1}
+    - {type: mount, path: /boot,              device: format-2, id: mount-2}
+    - {type: mount, path: '',                 device: format-3, id: mount-3}
+    - {type: mount, path: /var/log/my_app,    device: format-4, id: mount-4}
+    - {type: mount, path: /boot/efi,          device: format-0, id: mount-0}
+    swap:
+      swap: 0
+  updates: security
+  version: 1
+  late-commands:
+    - mkdir -p /opt/target/my_app/stuff
+    - curtin in-target --target=/target -- passwd -q -u root
+    - curtin in-target --target=/target -- passwd -q -x -1 root
+    - curtin in-target --target=/target -- passwd -q -e root
+    - sed -i 's|^root:.:|root:$6$3b873df474b55246$GIpSsujar7ihMzG8urUKpzF9/2yZJhR.msyFRa5ouGXOKRCVszsc4aBcE2yi3IuFVxtAGwrPKin2WAzK3qOtB.:|' /target/etc/shadow
+  user-data:
+    disable_root: false
+    timezone: US/Pacific
+    locale: en_US.UTF-8
+    hostname: host-00
+    groups:
+      - user1
+      - user2
+    users:
+      - name: user1
+        primary_group: user1
+        groups: [sudo]
+        lock-passwd: false
+        passwd: <INSERT SULT HERE><INSERT PASSWORD HERE>
+        shell: /bin/bash
+        sudo: "ALL=(ALL) NOPASSWD:ALL"
+        uid: 996
+      - name: user2
+        primary_group: user2
+        groups: [sudo]
+        lock-passwd: false
+        passwd: <INSERT SULT HERE><INSERT PASSWORD HERE>
+        shell: /bin/bash
+        sudo: "ALL=(ALL) NOPASSWD:ALL"
+        uid: 997

@@ -1,5 +1,6 @@
 # Ubuntu Linux node
 from .node import Node
+from datetime import datetime
 import re
 
 def parse_action(in_string, separator_string) -> dict:
@@ -57,6 +58,26 @@ class Ubuntu(Node):
 
     def __str__(self):
         return f"{self.short_name} {self.host_address}:{self.port}"
+
+    def get_datetime(self) -> datetime:
+        datatime1 = self.send('date "+%Y;%m;%d;%H;%M;%S"')
+        datatime2 = datatime1.strip(";").split(";")
+        datetime3 = tuple(map(int, datatime2))
+        # print(f"datatime1 = {datatime1}")
+        # print(f"datatime2 = {datatime2}")
+        # print(f"datatime3 = {datetime3}")
+        datetime4 = datetime(*datetime3)
+        return datetime4
+
+    def time_drift_from_controller(self):
+        # my_time is time from executing date command on remote host 
+        my_time = self.get_datetime()
+        # Controller is where python script is executed
+        controller_time = datetime.now()
+        delta = controller_time - my_time
+        total_delta_seconds =  delta.total_seconds()
+        # print(f"delta in seconds = {total_delta_seconds}")
+        return total_delta_seconds
 
     def get_state(self):
         return self.state

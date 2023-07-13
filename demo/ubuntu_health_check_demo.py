@@ -68,6 +68,10 @@ class Demo():
             case _:
                 print("sntp can not reach {ntp_server}")
 
+    def check_time_drift_from_controller_ok(self, ubuntu_instance):
+        result = ubuntu_instance.time_drift_from_controller_ok()
+        print_check_result("Time drift check", result)
+
     def check_all(self, ubuntu_instance):
         print(f"\nChecking {ubuntu_instance}")
         self.check_capabilities(ubuntu_instance)
@@ -90,9 +94,14 @@ class Demo():
         for ubuntu_instance in self.ubuntu_instances:
             self.check_sntp_ok(ubuntu_instance, "10.44.36.11")
 
+    def debug_time_drift(self):
+        for ubuntu_instance in self.ubuntu_instances:
+            self.check_time_drift_from_controller_ok(ubuntu_instance)
+
 # Demo Ubuntu Health Check on Jenkins Nodes
 my_nodes = deserialized_jenkins_nodes()
 demo = Demo(my_nodes)
 # demo.run()
 # demo.debug()
-demo.debug_sntp()
+# demo.debug_sntp()
+demo.debug_time_drift()
