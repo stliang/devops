@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+
+# Save this file as executable as check_ntp_time_sync in the /usr/local/nagios/libexec directory of Nagios server
+import warnings
+warnings.filterwarnings('ignore')
+
+from datetime import datetime
+import paramiko
+import sys
+import yaml
+
+from pathlib import Path
+
+NODES_FILE_PATH = str(Path.home() / ".services/nodes.yaml")
+
+# 0 - Service is OK.
+# 1 - Service has a WARNING.
+# 2 - Service is in a CRITICAL status.
+# 3 - Service status is UNKNOWN.
+def nagios_report(level, msg, multi_line_output=""):
+    if level == "OK":
+        print(f"OK: {msg}")
+        print(multi_line_output)
+        sys.exit(0)
+    elif level == "WARNING":
+        print(f"WARNING: {msg}")
+        print(multi_line_output)
+        sys.exit(1)
+    elif level == "CRITICAL":
+        print(f"CRITICAL: {msg}")
+        print(multi_line_output)
+        sys.exit(2)
+    else:
+        print(f"UNKNOWN: {msg}")
+        print(multi_line_output)
+        sys.exit(3)
+
+def send(cmd, host_address, username="default", password="default", port=22, timeout=20) -> str:
+    rtn_output = ''
+    with paramiko.SSHClient() as ssh:
+        try:
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(host_address, port=port, username=username, password=password, timeout=timeout)
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
+            rtn_output = ssh_stdout.read().decode('utf-8').strip("\n")
+            ssh.close()
+        except (paramiko.SSHException) as se:
+            rtn_output = se
+    return rtn_output
+
+def get_datetime(host_address, username, password) -> datetime:
+    datatime1 = send('date "+%Y;%m;%d;%H;%M;%S"', host_address, username=username, password=password)
+    datatime2 = datatime1.strip(";").split(";")
+    datetime3 = tuple(map(int, datatime2))
+    #print(f"datatime1 = {datatime1}")
+    #print(f"datatime2 = {datatime2}")
+    #print(f"datatime3 = {datetime3}")
+    datetime4 = datetime(*datetime3)
+    return datetime4
+
+def time_drift_from_controller(host_address, username, password):
+    # my_time is time from executing date command on remote host
+    my_time = get_datetime(host_address, username=username, password=password)
+    # Controller is where python script is executed
+    controller_time = datetime.now()
+    delta = controller_time - my_time
+    total_delta_seconds =  delta.total_seconds()
+    # print(f"delta in seconds = {total_delta_seconds}")
+    return total_delta_seconds
+
+def time_drift_from_controller_ok(host_address, username, password, tolerance = 300) -> [bool, str]:
+    delta_seconds = time_drift_from_controller(host_address, username=username, password=password)
+    if abs(delta_seconds) > tolerance:
+        return [False, f"{host_address} time drifted by {delta_seconds} seconds"]
+    else:
+        return [True, f"{host_address} time drift {delta_seconds} seconds is within {tolerance} seconds tolerance"]
+
+# This nodes YAML file example should be store in ~/.services/nodes.yaml:
+#nodes:
+# - {short_name: node1, host_address: node1.myapp.com, port: 22, username: user1, password: mypassword}
+def deserialized_nodes_info() -> dict:
+    nodes_info = {}
+    with Path(NODES_FILE_PATH).open("r") as stream:
+        try:
+            nodes_info = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    return nodes_info
+
+def main():
+    nodes_info = deserialized_nodes_info()
+    node_list = nodes_info["nodes"]
+
+    check_results = []
+
+    for node in node_list:
+        result = time_drift_from_controller_ok(node["host_address"], username=node["username"], password=node["password"], tolerance=180) 
+        check_results.append(result)
+
+    filtered_results = list(filter(lambda result: not result[0], check_results))
+
+    if len(filtered_results) > 0:
+        nagios_report("CRITICAL", "system time is off: ", str(filtered_results))
+    else:
+        nagios_report("OK", "System time is within tolerance")
+
+# Run programe
+# example: ./check_ntp_time_drift
+main()
