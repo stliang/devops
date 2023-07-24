@@ -59,3 +59,6 @@ def delete_unnamed_images():
 
 def main():
     delete_unnamed_images()
+
+# Run it
+main()
