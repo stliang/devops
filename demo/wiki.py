@@ -46,9 +46,6 @@ class Demo(object):
     def run(self):
         content = ["Short_Name,Address,IPMI_LAN,Root_Mount_Size,Root_Mount_Usage,Memory,CPU,Build_Node_Type"]
         for ubuntu_instance in self.ubuntu_instances:
-            disk_size = ""
-            mem_size = ""
-            cpu_count = ""
             df_h = ubuntu_instance.df_h()
             free_h = ubuntu_instance.free_h()
             lscpu = ubuntu_instance.lscpu()
@@ -61,7 +58,7 @@ class Demo(object):
             content.append(f"{ubuntu_instance.short_name},{ubuntu_instance.host_address},{ipmi_ip},{disk_size},{disk_usage},{mem_size},{cpu_count},{ubuntu_instance.build_node_type}")
         print('\n'.join(content))
         self.update_csv(
-            filename="test_file.csv",
+            filename="instrument_inventory.csv",
             content='\n'.join(content)
             )
 
