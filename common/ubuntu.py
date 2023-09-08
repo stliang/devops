@@ -240,6 +240,9 @@ class Ubuntu(Node):
     def df_h(self):
         return self.send("df -h")
 
+    def ipmi_lan(self):
+        return self.send("sudo ipmitool lan print")
+
     def java_version(self):
         output = self.send("java -version 2>&1 | head -n 1")
         p = re.compile('.*\"(\d+.\d+.\d+.*)\".*')

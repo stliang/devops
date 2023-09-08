@@ -27,6 +27,7 @@ class Node(object):
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
                 rtn_output = ssh_stdout.read().decode('utf-8').strip("\n")
                 ssh.close()     
-            except (paramiko.SSHException) as se:
-                rtn_output = se
+            # except (paramiko.SSHException) as se:
+            except (Exception) as se:
+                rtn_output = str(se)
         return rtn_output
