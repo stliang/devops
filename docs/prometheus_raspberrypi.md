@@ -1,9 +1,49 @@
 ## Run Prometheus in Raspberry Pi
-It is a bad idea to mount USB drive to serve as Prometheus data storage becaue editing the fstab is not reliable
+Note: It is a bad idea to mount USB drive to serve as Prometheus data storage.
+
+1.) Create prometheus.yml
 
 ```
-docker run \
-    -p 9090:9090 \
-    -v /path/to/prometheus.yml:/etc/prometheus/prometheus.yml \
-    prom/prometheus
+sudo mkdir /etc/prometheus/
+sudo vi /etc/prometheus/prometheus.yml
+
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'prometheus'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['localhost:9090']
+```
+
+2.) Create prometheus service
+```
+sudo vi /etc/systemd/system prometheus.service
+
+[Unit]
+Description=Prometheus container
+After=docker.service
+Wants=network-online.target docker.socket
+Requires=docker.socket
+
+[Service]
+Restart=always
+ExecStartPre=/bin/bash -c "/usr/bin/docker container inspect prometheus 2> /dev/null || /usr/bin/docker run -d --name prometheus --privileged -p 9090:9090 -v /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml -v /var/lib/prometheus:/var/lib/prometheus prom/prometheus"
+ExecStart=/usr/bin/docker start -a prometheus
+ExecStop=/usr/bin/docker stop -t 10 prometheus
+
+[Install]
+WantedBy=multi-user.target
 ```
