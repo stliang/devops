@@ -47,3 +47,13 @@ ExecStop=/usr/bin/docker stop -t 10 prometheus
 [Install]
 WantedBy=multi-user.target
 ```
+
+3.) Troubleshoot
+```
+systemctl status prometheus.service
+sudo systemctl start prometheus.service
+sudo systemctl stop prometheus.service
+sudo systemctl restart prometheus.service
+
+journalctl -r -u prometheus.service
+```
