@@ -48,7 +48,13 @@ ExecStop=/usr/bin/docker stop -t 10 prometheus
 WantedBy=multi-user.target
 ```
 
-3.) Troubleshoot
+3.) Enable service
+```
+sudo systemctl enable prometheus.service
+sudo reboot
+```
+
+4.) Troubleshoot
 ```
 systemctl status prometheus.service
 sudo systemctl start prometheus.service
