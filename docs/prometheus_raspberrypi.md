@@ -98,3 +98,9 @@ sudo /bin/systemctl status grafana-server
 
 Reference:
 [Official doc](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/)
+
+## Install Node Exporter in Raspberry Pi
+
+Refrence:
+
+[How To](https://linuxhit.com/prometheus-node-exporter-on-raspberry-pi-how-to-install/)
