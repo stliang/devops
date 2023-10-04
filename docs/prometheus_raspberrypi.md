@@ -95,3 +95,5 @@ sudo /bin/systemctl enable grafana-server
 sudo /bin/systemctl start grafana-server
 sudo /bin/systemctl status grafana-server
 ```
+Reference:
+[Official doc](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/)
