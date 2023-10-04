@@ -100,6 +100,50 @@ Reference:
 [Official doc](https://grafana.com/tutorials/install-grafana-on-raspberry-pi/)
 
 ## Install Node Exporter in Raspberry Pi
+1.) Install Node Exporter
+```
+wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-armv7.tar.gz
+tar -xvzf node_exporter-1.6.1.linux-armv7.tar.gz 
+sudo cp node_exporter-1.6.1.linux-armv7/node_exporter /usr/local/bin
+sudo chmod +x /usr/local/bin/node_exporter
+sudo useradd -m -s /bin/bash node_exporter
+sudo mkdir /var/lib/node_exporter
+sudo chown -R node_exporter:node_exporter /var/lib/node_exporter
+sudo vi /etc/systemd/system/node_exporter.service
+sudo systemctl daemon-reload 
+sudo systemctl enable node_exporter.service
+sudo systemctl start node_exporter.service
+sudo systemctl status node_exporter.service
+```
+2.) Configure Prometheus to scrap Node Exporter
+```
+sudo vi /etc/prometheus/prometheus.yml
+
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'prometheus'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'raspberry_pi_01'
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['localhost:9100']
+```
 
 Refrence:
 
