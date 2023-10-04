@@ -65,7 +65,7 @@ journalctl -r -u prometheus.service
 ```
 ## Install Grafana on Raspberry Pi
 
-1.) Create grafana service
+Note: As of this writting, there is no compatible grafana container image that would run on Raspberry Pi.  The following grafana.service definition will not work:
 ```
 sudo vi /etc/systemd/system grafana.service
 
@@ -83,4 +83,15 @@ ExecStop=/usr/bin/docker stop -t 10 grafana
 
 [Install]
 WantedBy=multi-user.target
+```
+
+1.) Install Grafana with apt
+```
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update
+sudo apt-get install -y grafana
+sudo /bin/systemctl enable grafana-server
+sudo /bin/systemctl start grafana-server
+sudo /bin/systemctl status grafana-server
 ```
