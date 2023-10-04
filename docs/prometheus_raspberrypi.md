@@ -145,6 +145,11 @@ scrape_configs:
     - targets: ['192.168.1.70:9100']
 
 ```
+3.) Calculate disk usage
+Go to http://localhost:9090/ and enter query:
+```
+100 - ((node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} * 100) /            node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"})
+```
 
 Refrence:
 
