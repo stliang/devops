@@ -142,7 +142,8 @@ scrape_configs:
   - job_name: 'raspberry_pi_01'
     scrape_interval: 15s
     static_configs:
-    - targets: ['localhost:9100']
+    - targets: ['192.168.1.70:9100']
+
 ```
 
 Refrence:
