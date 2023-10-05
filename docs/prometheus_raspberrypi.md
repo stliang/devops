@@ -166,19 +166,35 @@ Reference:
 ## Install Node Exporter in Raspberry Pi
 1.) Install Node Exporter
 ```
-wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-armv7.tar.gz
-tar -xvzf node_exporter-1.6.1.linux-armv7.tar.gz 
-sudo cp node_exporter-1.6.1.linux-armv7/node_exporter /usr/local/bin
-sudo chmod +x /usr/local/bin/node_exporter
-sudo useradd -m -s /bin/bash node_exporter
-sudo mkdir /var/lib/node_exporter
-sudo chown -R node_exporter:node_exporter /var/lib/node_exporter
+sudo mkdir /opt/node_exporter
+cd /opt/node_exporter
+sudo wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-armv7.tar.gz
+sudo tar -xvf node_exporter-1.6.1.linux-armv7.tar.gz --strip-components=1
+sudo rm node_exporter-1.6.1.linux-armv7.tar.gz 
 sudo vi /etc/systemd/system/node_exporter.service
-sudo systemctl daemon-reload 
-sudo systemctl enable node_exporter.service
+
+# node_exporter.service content:
+[Unit]
+Description=Prometheus Node Exporter
+Documentation=https://prometheus.io/docs/guides/node-exporter/
+After=network-online.target
+
+[Service]
+Restart=on-failure
+
+ExecStart=/opt/node_exporter/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+
+# Enable service and reboot
+sudo systemctl enable node_exporter
+sudo reboot
+
 sudo systemctl start node_exporter.service
 sudo systemctl status node_exporter.service
 ```
+
 2.) Configure Prometheus to scrap Node Exporter
 ```
 sudo vi /etc/prometheus/prometheus.yml
@@ -206,7 +222,7 @@ scrape_configs:
   - job_name: 'raspberry_pi_01'
     scrape_interval: 15s
     static_configs:
-    - targets: ['192.168.1.70:9100']
+    - targets: ['localhost:9100']
 
 ```
 3.) Calculate disk usage
