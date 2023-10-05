@@ -116,11 +116,13 @@ ExecStart=/var/lib/prometheus/prometheus \
 [Install]
 WantedBy=multi-user.target
 
+# Enable service
+sudo systemctl enable prometheus
+
 # Reboot to start and test service
 sudo reboot
 
 # Start the service
-sudo systemctl enable prometheus
 sudo systemctl start prometheus
 sudo systemctl status prometheus
 ```
