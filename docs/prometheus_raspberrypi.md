@@ -1,4 +1,4 @@
-## Install Prometheus on Raspberry Pi
+## Install Prometheus on Raspberry Pi in Container
 Note: It is a bad idea to mount USB drive to serve as Prometheus data storage.
 
 1.) Create prometheus.yml
@@ -63,6 +63,40 @@ sudo systemctl restart prometheus.service
 
 journalctl -r -u prometheus.service
 ```
+
+## Install Prometheus without container
+```
+cd ~/
+wget https://github.com/prometheus/prometheus/releases/download/v2.47.1/prometheus-2.47.1.linux-armv7.tar.gz
+tar xfz prometheus-2.47.1.linux-armv7.tar.gz 
+mv prometheus-2.47.1.linux-armv7 prometheus
+rm prometheus-2.47.1.linux-armv7.tar.gz 
+cd /var/lib/
+sudo mv ~/prometheus .
+sudo vi /etc/systemd/system/prometheus.service
+
+# prometheus.service content:
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network-online.target
+
+[Service]
+Restart=on-failure
+
+ExecStart=/var/lib/prometheus/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus/data
+
+[Install]
+WantedBy=multi-user.target
+
+# Start the service
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
+sudo systemctl status prometheus
+```
+
 ## Install Grafana on Raspberry Pi
 
 Note: As of this writting, there is no compatible grafana container image that would run on Raspberry Pi.  The following grafana.service definition will not work:
