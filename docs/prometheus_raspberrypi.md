@@ -64,7 +64,7 @@ sudo systemctl restart prometheus.service
 journalctl -r -u prometheus.service
 ```
 
-## Install Prometheus without container
+## Install Prometheus Without Container
 ```
 cd ~/
 wget https://github.com/prometheus/prometheus/releases/download/v2.47.1/prometheus-2.47.1.linux-armv7.tar.gz
@@ -73,6 +73,31 @@ mv prometheus-2.47.1.linux-armv7 prometheus
 rm prometheus-2.47.1.linux-armv7.tar.gz 
 cd /var/lib/
 sudo mv ~/prometheus .
+
+sudo mkdir /etc/prometheus/
+sudo vi /etc/prometheus/prometheus.yml
+
+# prometheus.yml content:
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'prometheus'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['localhost:9090']
+
 sudo vi /etc/systemd/system/prometheus.service
 
 # prometheus.service content:
@@ -90,6 +115,8 @@ ExecStart=/var/lib/prometheus/prometheus \
 
 [Install]
 WantedBy=multi-user.target
+
+# Reboot to start and test service
 
 # Start the service
 sudo systemctl enable prometheus
