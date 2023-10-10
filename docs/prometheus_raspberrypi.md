@@ -230,7 +230,36 @@ Go to http://localhost:9090/ and enter query:
 ```
 100 - ((node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} * 100) /            node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"})
 ```
+### Install Alert Manager
+```
+sudo useradd -M -r -s /bin/false alertmanager
+wget https://github.com/prometheus/alertmanager/releases/download/v0.26.0/alertmanager-0.26.0.linux-amd64.tar.gz
+tar xvfz alertmanager-0.26.0.linux-amd64.tar.gz 
+sudo cp alertmanager-0.26.0.linux-amd64/alertmanager /usr/local/bin/
+sudo chown alertmanager:alertmanager /usr/local/bin/alertmanager
+sudo mkdir -p /etc/alertmanager
+sudo cp alertmanager-0.26.0.linux-amd64/alertmanager.yml /etc/alertmanager
+sudo chown -R alertmanager:alertmanager /etc/alertmanager
+sudo mkdir -p /var/lib/alertmanager
+sudo chown alertmanager:alertmanager /var/lib/alertmanager
+sudo vi /etc/systemd/system/alertmanager.service
+[Unit]
+Description=Prometheus Alertmanager
+Wants=network-online.target
+After=network-online.target
 
+[Service]
+User=alertmanager
+Group=alertmanager
+Type=simple
+ExecStart=/usr/local/bin/alertmanager
+--config.file /etc/alertmanager/alertmanager.yml
+--storage.path /var/lib/alertmanager/
+
+[Install]
+WantedBy=multi-user.target
+sudo systemctl enable alertmanager
+```
 Refrence:
 
 [How To](https://linuxhit.com/prometheus-node-exporter-on-raspberry-pi-how-to-install/)
