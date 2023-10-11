@@ -282,7 +282,11 @@ ExecStart=/usr/local/bin/alertmanager
 
 [Install]
 WantedBy=multi-user.target
+
+# Enable alertmanager service
 sudo systemctl enable alertmanager
+sudo systemctl start alertmanager
+sudo systemctl status alertmanager
 ```
 Refrence:
 
