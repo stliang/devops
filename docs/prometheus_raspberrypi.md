@@ -232,13 +232,37 @@ Go to http://localhost:9090/ and enter query:
 ```
 ### Install Alert Manager
 ```
+wget https://golang.org/dl/go1.21.3.linux-armv6l.tar.gz
+sudo rm -rf /usr/local/go; sudo tar -C /usr/local -xzf go1.21.3.linux-armv6l.tar.gz 
+sudo ln -s /usr/local/go/bin/go /usr/local/bin
+go install github.com/prometheus/alertmanager/cmd/alertmanager@latest
+
 sudo useradd -M -r -s /bin/false alertmanager
-wget https://github.com/prometheus/alertmanager/releases/download/v0.26.0/alertmanager-0.26.0.linux-amd64.tar.gz
-tar xvfz alertmanager-0.26.0.linux-amd64.tar.gz 
-sudo cp alertmanager-0.26.0.linux-amd64/alertmanager /usr/local/bin/
+cd go/bin
+sudo cp alertmanager /usr/local/bin/
 sudo chown alertmanager:alertmanager /usr/local/bin/alertmanager
 sudo mkdir -p /etc/alertmanager
-sudo cp alertmanager-0.26.0.linux-amd64/alertmanager.yml /etc/alertmanager
+sudo vi /etc/alertmanager/alertmanager.yml
+
+# alertmanager.yml content
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'web.hook'
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://127.0.0.1:5001/'
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+
+
 sudo chown -R alertmanager:alertmanager /etc/alertmanager
 sudo mkdir -p /var/lib/alertmanager
 sudo chown alertmanager:alertmanager /var/lib/alertmanager
