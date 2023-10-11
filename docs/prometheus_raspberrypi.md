@@ -276,8 +276,8 @@ After=network-online.target
 User=alertmanager
 Group=alertmanager
 Type=simple
-ExecStart=/usr/local/bin/alertmanager
---config.file /etc/alertmanager/alertmanager.yml
+ExecStart=/usr/local/bin/alertmanager \
+--config.file /etc/alertmanager/alertmanager.yml \
 --storage.path /var/lib/alertmanager/
 
 [Install]
