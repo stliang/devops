@@ -278,10 +278,12 @@ Group=alertmanager
 Type=simple
 ExecStart=/usr/local/bin/alertmanager \
 --config.file /etc/alertmanager/alertmanager.yml \
+--cluster.advertise-address=0.0.0.0:9093 \
 --storage.path /var/lib/alertmanager/
 
 [Install]
 WantedBy=multi-user.target
+
 
 # Enable alertmanager service
 sudo systemctl enable alertmanager
