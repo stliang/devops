@@ -278,7 +278,7 @@ Group=alertmanager
 Type=simple
 ExecStart=/usr/local/bin/alertmanager \
 --config.file /etc/alertmanager/alertmanager.yml \
---cluster.advertise-address=0.0.0.0:9093 \
+--cluster.listen-address= \
 --storage.path /var/lib/alertmanager/
 
 [Install]
@@ -290,6 +290,9 @@ sudo systemctl enable alertmanager
 sudo systemctl start alertmanager
 sudo systemctl status alertmanager
 ```
+Note:
+This --cluster.advertise-address=0.0.0.0:9093 setting is not needed if HA is disabled by settting --cluster.listen-address= with empty string.
+
 Refrence:
 
 [How To](https://linuxhit.com/prometheus-node-exporter-on-raspberry-pi-how-to-install/)
