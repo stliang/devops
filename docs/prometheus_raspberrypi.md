@@ -291,8 +291,11 @@ sudo systemctl start alertmanager
 sudo systemctl status alertmanager
 ```
 Note:
+
 This --cluster.advertise-address=0.0.0.0:9093 setting is not needed if HA is disabled by settting --cluster.listen-address= with empty string.
 
 Refrence:
 
 [How To](https://linuxhit.com/prometheus-node-exporter-on-raspberry-pi-how-to-install/)
+
+[slack integration video](https://www.youtube.com/watch?v=2E6GH9rAUwU)
