@@ -244,17 +244,19 @@ sudo chown alertmanager:alertmanager /usr/local/bin/alertmanager
 sudo mkdir -p /etc/alertmanager
 sudo vi /etc/alertmanager/alertmanager.yml
 
-# alertmanager.yml content
+# /etc/alertmanager/alertmanager.yml  content
 route:
   group_by: ['alertname']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 1h
-  receiver: 'web.hook'
+  receiver: 'slack_monitor'
 receivers:
-  - name: 'web.hook'
-    webhook_configs:
-      - url: 'http://127.0.0.1:5001/'
+  - name: 'slack_monitor'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/############/###########/##################'
+        channel: '#monitor'
+        send_resolved: true
 inhibit_rules:
   - source_match:
       severity: 'critical'
@@ -290,6 +292,42 @@ sudo systemctl enable alertmanager
 sudo systemctl start alertmanager
 sudo systemctl status alertmanager
 ```
+# Configure Prometheus to use Alertmanager
+```
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'prometheus'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'raspberry_pi_01'
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['localhost:9100']
+
+# Alerting specifies settings related to the Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+        # Alertmanager's default port is 9093
+        - localhost:9093
+```
+
 Note:
 
 This --cluster.advertise-address=0.0.0.0:9093 setting is not needed if HA is disabled by settting --cluster.listen-address= with empty string.
