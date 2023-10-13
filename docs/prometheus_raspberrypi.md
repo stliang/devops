@@ -286,6 +286,9 @@ ExecStart=/usr/local/bin/alertmanager \
 [Install]
 WantedBy=multi-user.target
 
+Note:
+This --cluster.advertise-address=0.0.0.0:9093 setting is not needed if HA is disabled by settting --cluster.listen-address= with empty string.
+
 
 # Enable alertmanager service
 sudo systemctl enable alertmanager
@@ -331,9 +334,47 @@ alerting:
 Go to http://localhost:9093/#/alerts to see the alertmanager is up.
 Go to Prometheus page and query prometheus_notifications_alertmanagers_discovered to confirm Alertmanager is up
 
-Note:
+# Update prometheus config
+```
+/etc/prometheus/prometheus.yml 
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
 
-This --cluster.advertise-address=0.0.0.0:9093 setting is not needed if HA is disabled by settting --cluster.listen-address= with empty string.
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'prometheus'
+
+# Alerting specifies settings related to the Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+        # Alertmanager's default port is 9093
+        - localhost:9093
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'alertmanager'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9093']
+
+  - job_name: 'raspberry_pi_01'
+    scrape_interval: 15s
+    static_configs:
+    - targets: ['localhost:9100']
+```
 
 Refrence:
 
