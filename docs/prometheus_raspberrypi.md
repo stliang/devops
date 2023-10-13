@@ -345,6 +345,10 @@ global:
   external_labels:
     monitor: 'prometheus'
 
+# Rules and alerts are read from the specified file(s)
+rule_files:
+  - rules.yml
+
 # Alerting specifies settings related to the Alertmanager
 alerting:
   alertmanagers:
@@ -374,7 +378,27 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
     - targets: ['localhost:9100']
+
 ```
+
+# Add rules.yml
+```
+groups:
+- name: AllInstances
+  rules:
+  - alert: InstanceDown
+    # Condition for alerting
+    expr: up == 0
+    for: 1m
+    # Annotation - additional informational labels to store more information
+    annotations:
+      title: 'Instance {{ $labels.instance }} down'
+      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.'
+    # Labels - additional labels to be attached to the alert
+    labels:
+      severity: 'critical'
+```
+
 
 Refrence:
 
