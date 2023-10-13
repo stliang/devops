@@ -327,6 +327,8 @@ alerting:
         # Alertmanager's default port is 9093
         - localhost:9093
 ```
+# Test Alertmanager
+Go to Prometheus page and query prometheus_notifications_alertmanagers_discovered to confirm Alertmanager is up
 
 Note:
 
