@@ -328,6 +328,7 @@ alerting:
         - localhost:9093
 ```
 # Test Alertmanager
+Go to http://localhost:9093/#/alerts to see the alertmanager is up.
 Go to Prometheus page and query prometheus_notifications_alertmanagers_discovered to confirm Alertmanager is up
 
 Note:
