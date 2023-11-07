@@ -1,0 +1,94 @@
+#cloud-config
+autoinstall:
+  apt:
+    disable_components: []
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches:
+      - amd64
+      - i386
+      uri: http://us.archive.ubuntu.com/ubuntu
+    - arches:
+      - default
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  drivers:
+    install: false
+  kernel:
+    package: linux-generic
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
+  network:
+    ethernets:
+      eth0:
+        dhcp4: true
+    version: 2
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  packages: 
+    - git
+    - vim
+    - emacs
+    - wget
+    - net-tools
+    - curl
+    - ca-certificates-java
+    - openjdk-11-jdk
+    - openssh-server
+    - gnome-session-flashback
+    - tcsh
+    - python3-pip
+    - python-tk
+    - apt-transport-https
+    - tree
+    - linux-source
+    - linux-modules-extra-5.4.0-164-generic
+    - ubuntu-desktop
+  storage:
+    config:
+    - {type: disk, ptable: gpt, path: /dev/nvme0n1, wipe: superblock-recursive, preserve: false, name: '', grub_device: false, id: disk-nvme0n1}
+    - {type: partition, device: disk-nvme0n1, size: 1G,    wipe: superblock, flag: boot, number: 1, preserve: false, grub_device: true,  id: partition-0}
+    - {type: partition, device: disk-nvme0n1, size: 96G,   wipe: superblock, flag: '',   number: 2, preserve: false, grub_device: false, id: partition-1}
+    - {type: partition, device: disk-nvme0n1, size: 29G,   wipe: superblock, flag: '',   number: 3, preserve: false, grub_device: false, id: partition-2}
+    - {type: partition, device: disk-nvme0n1, size: 48G,   wipe: superblock, flag: swap, number: 4, preserve: false, grub_device: false, id: partition-3}
+    - {type: partition, device: disk-nvme0n1, size: -1,    wipe: superblock, flag: '',   number: 5, preserve: false, grub_device: false, id: partition-4}
+    - {type: format, fstype: fat32, volume: partition-0, preserve: false, id: format-0}
+    - {type: format, fstype: ext4,  volume: partition-1, preserve: false, id: format-1}
+    - {type: format, fstype: ext4,  volume: partition-2, preserve: false, id: format-2}
+    - {type: format, fstype: swap,  volume: partition-3, preserve: false, id: format-3}
+    - {type: format, fstype: ext4,  volume: partition-4, preserve: false, id: format-4}
+    - {type: mount, path: /,                  device: format-1, id: mount-1}
+    - {type: mount, path: /boot,              device: format-2, id: mount-2}
+    - {type: mount, path: '',                 device: format-3, id: mount-3}
+    - {type: mount, path: /var/log/app,       device: format-4, id: mount-4}
+    - {type: mount, path: /boot/efi,          device: format-0, id: mount-0}
+    swap:
+      swap: 0
+  updates: security
+  version: 1
+  late-commands:
+    - cp -r /cdrom/app /target/opt/
+    - curtin in-target --target=/target -- passwd -q -u root
+    - curtin in-target --target=/target -- passwd -q -x -1 root
+    - curtin in-target --target=/target -- passwd -q -e root
+    - sed -i 's|^root:.:|root:$6$3b873df474b55246$GIpSsujar7ihMzG8urUKpzF9/2yZJhR.msyFRa5ouGXOKRCVszsc4aBcE2yi3IuFVxtAGwrPKin2WAzK3qOtB.:|' /target/etc/shadow
+  user-data:
+    disable_root: false
+    timezone: US/Pacific
+    locale: en_US.UTF-8
+    hostname: ubuntu
+    groups:
+      - admin
+    users:
+      - name: admin
+        primary_group: admin
+        groups: [sudo, adm, dialout, cdrom, dip, plugdev, lpadmin]
+        lock-passwd: false
+        passwd: $6$3b873df474b55246$GIpSsujar7ihMzG8urUKpzF9/2yZJhR.msyFRa5ouGXOKRCVszsc4aBcE2yi3IuFVxtAGwrPKin2WAzK3qOtB
+        shell: /bin/bash
+        sudo: "ALL=(ALL) NOPASSWD:ALL"
+        uid: 999
