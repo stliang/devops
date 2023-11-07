@@ -1,0 +1,91 @@
+#_preseed_V1
+d-i debian-installer/locale string en_US
+
+d-i keyboard-configuration/xkb-keymap select us
+
+d-i netcfg/choose_interface select auto
+
+d-i netcfg/get_hostname string debian
+d-i netcfg/get_domain string localdomain
+
+# Disable that annoying WEP key dialog.
+d-i netcfg/wireless_wep string
+
+d-i mirror/country string manual
+d-i mirror/http/hostname string http.us.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+
+# Root user
+d-i passwd/root-login boolean true
+d-i passwd/root-password-crypted password $6$UwyUydLmAr4w1PcE$FnFm3Lp7lDkOqiqrHR9aJ0FvBkt7lU0UdRx0Fx0m1WOwb6AkMJlu9Yg1xl2z08xxVyYQpm86MUPI2qM1Cv2DY1
+
+#### admin user
+d-i passwd/user-fullname string admin
+d-i passwd/username string admin
+d-i passwd/user-password-crypted password $6$UwyUydLmAr4w1PcE$FnFm3Lp7lDkOqiqrHR9aJ0FvBkt7lU0UdRx0Fx0m1WOwb6AkMJlu9Yg1xl2z08xxVyYQpm86MUPI2qM1Cv2DY1
+d-i passwd/auto-login boolean false
+d-i passwd/user-default-groups string admin sudo
+d-i user-setup/allow-password-weak boolean true
+d-i user-setup/encrypt-home boolean false
+
+d-i clock-setup/utc boolean true
+
+d-i time/zone string US/Pacific
+d-i clock-setup/ntp boolean true
+
+### Partitioning
+
+d-i partman-auto/disk string /dev/sda
+d-i partman-auto/method string regular
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-md/device_remove_md boolean true
+
+d-i partman-auto/expert_recipe string                         \
+      boot-root ::                                            \
+              30720 30726 30960 ext3                          \
+                      $primary{ } $bootable{ }                \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext3 }    \
+                      mountpoint{ /boot }                     \
+              .                                               \
+              51200 51201 61204 ext3                          \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext3 }    \
+                      mountpoint{ / }                         \
+              .                                               \
+              64 512 300% linux-swap                          \
+                      method{ swap } format{ }                \
+              .
+
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+# This makes partman automatically partition without confirmation.
+d-i partman-md/confirm boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+### Apt setup
+d-i apt-setup/cdrom/set-first boolean false
+
+### Package selection
+tasksel tasksel/first multiselect standard, kde-desktop
+
+# Individual additional packages to install
+d-i pkgsel/include string openssh-server build-essential emacs curl net-tools linux-headers-6.1.0-11-amd64
+
+popularity-contest popularity-contest/participate boolean false
+
+### Boot loader installation
+
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+
+d-i grub-installer/bootdev  string /dev/sda
+
+d-i finish-install/reboot_in_progress note
