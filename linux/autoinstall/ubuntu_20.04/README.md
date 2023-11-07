@@ -6,6 +6,11 @@
 sudo apt install wget git p7zip xorriso isolinux
 ```
 
+## Generate a salted password for user-data file
+mkpasswd -m sha-512
+
+Note the $.$..........$ in password string is a salt value and different salt will generate different hash for the same password in user-data file
+
 ## Note down your Target_System type instrument's primary network interface name
 ```
 ip link
