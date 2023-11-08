@@ -1,6 +1,6 @@
 # Nginx Hosted Kotlin Consumer and Producer of RabbitMQ
 
-## 1. Install RabbitMQ Ubuntu 20.04
+## 1. Setup RabbitMQ Ubuntu 20.04
 
 ### 1.a Install RabbitMQ
 ```
@@ -107,10 +107,41 @@ sudo systemd-analyze plot > plot.html
 scp user_name@<rabbitmq_host>:~/plot.html .
 ```
 
-## 2. Install Nginx on Ubuntu 20.04
+## 2. Setup Nginx on Ubuntu 20.04
+### 2.a Install Nginx
 ```
 sudo apt update
 sudo apt install nginx
+```
+### 2.b Create static page
+```
+cd /var/www
+sudo mkdir plot
+sudo chown $(whoami):$(whoami) plot
+cd plot
+sudo systemd-analyze plot > index.html
+
+cd /etc/nginx/sites-enabled/
+
+sudo "${EDITOR:-vi}" plot
+# input the follow
+server {
+       listen 81;
+       listen [::]:81;
+
+       server_name example.ubuntu.com;
+
+       root /var/www/plot;
+       index index.html;
+
+       location / {
+               try_files $uri $uri/ =404;
+       }
+}
+
+sudo service nginx restart
+
+# Go to http://<your_site>:81
 ```
 
 
