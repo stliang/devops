@@ -98,7 +98,11 @@ fs.file-max = 9223372036854775807
 
 ## Debug SystemD unit start up order
 ```
+cd
 sudo systemd-analyze plot > plot.html
+
+# From a machine that can display html file
+scp user_name@<rabbitmq_host>:~/plot.html .
 ```
 
 ## Reference
