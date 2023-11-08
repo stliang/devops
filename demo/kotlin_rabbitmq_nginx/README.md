@@ -118,8 +118,7 @@ sudo apt install nginx
 cd /var/www
 sudo mkdir plot
 sudo chown $(whoami):$(whoami) plot
-cd plot
-sudo systemd-analyze plot > index.html
+sudo systemd-analyze plot > /var/www/plot/index.html
 
 cd /etc/nginx/sites-enabled/
 
