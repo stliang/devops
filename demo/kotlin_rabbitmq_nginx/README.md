@@ -95,5 +95,11 @@ ulimit -n
 sysctl fs.file-max
 fs.file-max = 9223372036854775807
 ```
+
+## Debug SystemD unit start up order
+```
+sudo systemd-analyze plot > plot.html
+```
+
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
