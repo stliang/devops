@@ -1,8 +1,8 @@
 # Nginx Hosted Kotlin Consumer and Producer of RabbitMQ
 
-## Install RabbitMQ and Nginx Without Docker on Ubuntu 20.04
+## 1. Install RabbitMQ Ubuntu 20.04
 
-### Install RabbitMQ
+### 1.a Install RabbitMQ
 ```
 #!/bin/sh
 
@@ -50,7 +50,7 @@ sudo apt-get install -y erlang-base \
 sudo apt-get install rabbitmq-server -y --fix-missing
 ```
 
-### Configure RabbitMQ
+### 1.b Configure RabbitMQ
 ```
 sudo systemctl enable rabbitmq-server.service
 sudo systemctl start rabbitmq-server.service
@@ -98,7 +98,7 @@ sysctl fs.file-max
 fs.file-max = 9223372036854775807
 ```
 
-### Debug SystemD unit start up order
+### 1.c Debug SystemD unit start up order
 ```
 cd
 sudo systemd-analyze plot > plot.html
@@ -107,7 +107,7 @@ sudo systemd-analyze plot > plot.html
 scp user_name@<rabbitmq_host>:~/plot.html .
 ```
 
-## Install Nginx
+## 2. Install Nginx on Ubuntu 20.04
 ```
 sudo apt update
 sudo apt install nginx
