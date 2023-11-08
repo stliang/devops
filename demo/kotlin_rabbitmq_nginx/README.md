@@ -143,6 +143,18 @@ sudo service nginx restart
 # Go to http://<your_site>:81
 ```
 
+## Make Nginx start after RabbitMQ
+```
+sudo vi /lib/systemd/system/nginx.service
+
+# Add the following to Unit
+[Unit]
+Requires=rabbitmq-server.service
+After=rabbitmq-server.service
+
+sudo reboot
+```
+
 
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
