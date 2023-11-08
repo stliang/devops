@@ -57,7 +57,7 @@ sudo systemctl edit rabbitmq-server.service
 
 # Add the following to change number of file descriptors
 [Service]
-LimitNOFILE=64000
+LimitNOFILE=4000
 
 # Confirm file descriptor setting change
 sudo systemctl restart rabbitmq-server.service
