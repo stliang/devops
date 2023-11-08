@@ -87,6 +87,13 @@ Max nice priority         0                    0
 Max realtime priority     0                    0                    
 Max realtime timeout      unlimited            unlimited            us 
 
+# User level max file descriptor
+ulimit -n
+1024
+
+# Kernel level max file descriptor
+sysctl fs.file-max
+fs.file-max = 9223372036854775807
 ```
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
