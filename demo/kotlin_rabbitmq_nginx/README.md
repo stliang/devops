@@ -62,6 +62,31 @@ LimitNOFILE=64000
 # Confirm file descriptor setting change
 sudo systemctl restart rabbitmq-server.service
 sudo systemctl status rabbitmq-server.service
+
+# Another way to confirm file descriptor setting
+sudo rabbitmq-diagnostics status
+cat /proc/$RABBITMQ_BEAM_PROCESS_PID/limits
+
+# The RABBITMQ_BEAM_PROCESS_PID is the "OS PID", 36335 for example:
+cat /proc/36335/limits 
+Limit                     Soft Limit           Hard Limit           Units     
+Max cpu time              unlimited            unlimited            seconds   
+Max file size             unlimited            unlimited            bytes     
+Max data size             unlimited            unlimited            bytes     
+Max stack size            8388608              unlimited            bytes     
+Max core file size        0                    unlimited            bytes     
+Max resident set          unlimited            unlimited            bytes     
+Max processes             380457               380457               processes 
+Max open files            4000                 4000                 files     
+Max locked memory         65536                65536                bytes     
+Max address space         unlimited            unlimited            bytes     
+Max file locks            unlimited            unlimited            locks     
+Max pending signals       380457               380457               signals   
+Max msgqueue size         819200               819200               bytes     
+Max nice priority         0                    0                    
+Max realtime priority     0                    0                    
+Max realtime timeout      unlimited            unlimited            us 
+
 ```
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
