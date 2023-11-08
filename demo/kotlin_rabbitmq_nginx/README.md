@@ -48,5 +48,20 @@ sudo apt-get install -y erlang-base \
 sudo apt-get install rabbitmq-server -y --fix-missing
 ```
 
+## Configure RabbitMQ
+```
+sudo systemctl enable rabbitmq-server.service
+sudo systemctl start rabbitmq-server.service
+sudo systemctl status rabbitmq-server.service
+sudo systemctl edit rabbitmq-server.service
+
+# Add the following to change number of file descriptors
+[Service]
+LimitNOFILE=64000
+
+# Confirm file descriptor setting change
+sudo systemctl restart rabbitmq-server.service
+sudo systemctl status rabbitmq-server.service
+```
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
