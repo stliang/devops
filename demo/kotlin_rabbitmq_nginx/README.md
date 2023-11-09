@@ -105,6 +105,9 @@ sudo rabbitmqctl set_user_tags admin administrator
 
 http://<rabbitmq_host>:15672
 
+# Show cluster status
+sudo rabbitmqctl cluster_status
+
 # List vhosts
 sudo rabbitmqctl list_vhosts tracing tags name cluster_state
 Listing vhosts ...
