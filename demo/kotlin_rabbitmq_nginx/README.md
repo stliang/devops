@@ -104,6 +104,12 @@ sudo rabbitmqctl add_user admin my_admin_password
 sudo rabbitmqctl set_user_tags admin administrator
 
 http://<rabbitmq_host>:15672
+
+# List vhosts
+sudo rabbitmqctl list_vhosts tracing tags name cluster_state
+Listing vhosts ...
+tracing	tags	name	cluster_state
+false	[]	/	[{rabbit@userserver, running}]
 ```
 
 ### 1.c Debug SystemD unit start up order
