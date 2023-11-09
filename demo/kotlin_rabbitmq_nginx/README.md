@@ -115,13 +115,67 @@ tracing	tags	name	cluster_state
 false	[]	/	[{rabbit@userserver, running}]
 ```
 
-### 1.c Debug SystemD unit start up order
+### 1.c Test RabbitMQ pub/sub
 ```
-cd
-sudo systemd-analyze plot > plot.html
+sudo rabbitmqctl set_permissions -p "/" "<username>" ".*" ".*" ".*"
+Setting permissions for user "<username>" in vhost "/" ...
+genia@userserver:~/debug$ sudo rabbitmqctl list_permissions --vhost /
+Listing permissions for vhost "/" ...
+user	configure	write	read
+<username>	.*	.*	.*
+guest	.*	.*	.*
 
-# From a machine that can display html file
-scp user_name@<rabbitmq_host>:~/plot.html .
+pip install pika
+vi emit_log.py
+
+#!/usr/bin/env python3
+import pika
+import sys
+
+
+credentials = pika.PlainCredentials('<username>', '<password>')
+parameters = pika.ConnectionParameters('<rabbitmq_address>',
+                                   5672,
+                                   '/',
+                                   credentials)
+connection = pika.BlockingConnection(parameters)
+channel = connection.channel()
+
+channel.exchange_declare(exchange='logs', exchange_type='fanout')
+
+message = ' '.join(sys.argv[1:]) or "info: Hello World!"
+channel.basic_publish(exchange='logs', routing_key='', body=message)
+print(f" [x] Sent {message}")
+connection.close()
+
+chmod +x emit_log.py
+
+vi receive_logs.py
+
+#!/usr/bin/env python3
+import pika
+
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+
+channel.exchange_declare(exchange='logs', exchange_type='fanout')
+
+result = channel.queue_declare(queue='', exclusive=True)
+queue_name = result.method.queue
+
+channel.queue_bind(exchange='logs', queue=queue_name)
+
+print(' [*] Waiting for logs. To exit press CTRL+C')
+
+def callback(ch, method, properties, body):
+    print(f" [x] {body}")
+
+channel.basic_consume(
+    queue=queue_name, on_message_callback=callback, auto_ack=True)
+
+channel.start_consuming()
+
 ```
 
 ## 2. Setup Nginx on Ubuntu 20.04
@@ -170,8 +224,13 @@ Requires=rabbitmq-server.service
 After=rabbitmq-server.service
 
 sudo reboot
-```
 
+# Debug SystemD unit start up order
+sudo systemd-analyze plot > /var/www/plot/index.html
+
+# Or from a machine that can display html file
+scp user_name@<rabbitmq_host>:/var/www/plot/index.html .
+```
 
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
