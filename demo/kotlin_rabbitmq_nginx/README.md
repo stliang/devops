@@ -96,6 +96,14 @@ ulimit -n
 # Kernel level max file descriptor
 sysctl fs.file-max
 fs.file-max = 9223372036854775807
+
+# Start RabbitMQ Management Console
+sudo rabbitmq-plugins enable rabbitmq_management
+
+sudo rabbitmqctl add_user admin my_admin_password
+sudo rabbitmqctl set_user_tags admin administrator
+
+http://<rabbitmq_host>:15672
 ```
 
 ### 1.c Debug SystemD unit start up order
