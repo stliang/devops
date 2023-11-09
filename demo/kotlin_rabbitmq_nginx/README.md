@@ -234,3 +234,4 @@ scp user_name@<rabbitmq_host>:/var/www/plot/index.html .
 
 ## Reference
 [cloudsmith](https://www.rabbitmq.com/install-debian.html#apt-quick-start-cloudsmith)
+[kotlin rabbitmq](https://www.daniweb.com/programming/web-development/tutorials/538622/how-to-consume-rabbitmq-messages-in-kotlin)
