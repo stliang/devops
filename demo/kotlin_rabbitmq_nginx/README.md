@@ -115,7 +115,7 @@ tracing	tags	name	cluster_state
 false	[]	/	[{rabbit@userserver, running}]
 ```
 
-### 1.c Test RabbitMQ pub/sub
+### 1.c Test RabbitMQ pub/sub with Python
 ```
 sudo rabbitmqctl set_permissions -p "/" "<username>" ".*" ".*" ".*"
 Setting permissions for user "<username>" in vhost "/" ...
@@ -176,6 +176,55 @@ channel.basic_consume(
 
 channel.start_consuming()
 
+```
+
+### 1.d Test RabbitMQ pub/sub with Kotlin
+```
+import com.rabbitmq.client.BuiltinExchangeType
+import com.rabbitmq.client.ConnectionFactory
+
+
+class EmitLog {
+    companion object {
+        const val EXCHANGE_NAME = "logs"
+
+        fun getMessage(strings: Array<String>): String {
+            return if (strings.isEmpty()) "info: Hello World!" else joinStrings(strings, " ")
+        }
+
+        private fun joinStrings(strings: Array<String>, delimiter: String): String {
+            val length = strings.size
+            if (length == 0) return ""
+            val words = StringBuilder(strings[0])
+            for (i in 1 until length) {
+                words.append(delimiter).append(strings[i])
+            }
+            return words.toString()
+        }
+    }
+}
+
+fun main(args: Array<String>) {
+    val factory = ConnectionFactory()
+    factory.host = "<rabbitmq_address>"
+    factory.virtualHost = "/"
+    factory.username = "<username>"
+    factory.password = "<password>"
+    val connection = factory.newConnection()
+    val channel = connection.createChannel()
+    channel.exchangeDeclare(EmitLog.EXCHANGE_NAME, BuiltinExchangeType.FANOUT)
+
+    val message = EmitLog.getMessage(args)
+    for (i in 1..5) {
+        channel.basicPublish(EmitLog.EXCHANGE_NAME, "", null, message.toByteArray())
+        Thread.sleep(2_000)
+        println(i)
+    }
+    System.out.println(" [x] Sent '$message'")
+
+    channel.close()
+    connection.close()
+}
 ```
 
 ## 2. Setup Nginx on Ubuntu 20.04
