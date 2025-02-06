@@ -60,7 +60,7 @@ chmod -w iso/isolinux
 ## Post install stuff
 ```
 chmod +w iso
-(cd post_install_files; cp *.* ../iso/.)
+(cd post_install_files; cp * ../iso/.)
 ```
 
 ## Fix iso file checksum
