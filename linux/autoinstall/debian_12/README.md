@@ -24,12 +24,12 @@ mkpasswd -m sha-512 -S $(pwgen -ns 16 1) <MY_PASSWORD>
 
 ## Download Debian ISO
 ```
-curl -LO# https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.1.0-amd64-netinst.iso
+curl -LO# https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.9.0-amd64-netinst.iso
 ```
 
 ## Extract ISO files
 ```
-xorriso -osirrox on -indev "debian-12.1.0-amd64-netinst.iso" -extract / iso
+xorriso -osirrox on -indev "debian-12.9.0-amd64-netinst.iso" -extract / iso
 ```
 
 ## Add preseed to initrd
@@ -74,9 +74,9 @@ chmod -w iso
 
 ## Create the ISO
 ```
-dd if=./debian-12.1.0-amd64-netinst.iso bs=1 count=432 of=isohdpfx.bin
+dd if=./debian-12.9.0-amd64-netinst.iso bs=1 count=432 of=isohdpfx.bin
 xorriso -as mkisofs \
-        -r -V 'Debian 12.1.0 amd64 n' \
+        -r -V 'Debian 12.9.0 amd64 n' \
         -J -J -joliet-long -cache-inodes \
         -isohybrid-mbr isohdpfx.bin \
         -b isolinux/isolinux.bin \
@@ -85,7 +85,7 @@ xorriso -as mkisofs \
         -eltorito-alt-boot \
         -e boot/grub/efi.img \
         -no-emul-boot -isohybrid-gpt-basdat -isohybrid-apm-hfsplus \
-        -o ./debian-12.1.0-amd64-unattended.iso \
+        -o ./debian-12.9.0-amd64-unattended.iso \
         iso
 ```
 
@@ -110,7 +110,7 @@ w - save changes
 
 ### Burn ISO to USB drive
 ```
-sudo dd bs=4M if=./debian-12.1.0-amd64-unattended.iso of=/dev/<USB drive name> conv=fdatasync status=progress
+sudo dd bs=4M if=./debian-12.9.0-amd64-unattended.iso of=/dev/<USB drive name> conv=fdatasync status=progress
 ```
 
 ### Troubleshooting
