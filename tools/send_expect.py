@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 import paramiko
 import time
+import json
 
 def send_expect(ssh_channel, command, expect_prompt, timeout=1):
     """
@@ -23,7 +26,7 @@ def send_expect(ssh_channel, command, expect_prompt, timeout=1):
         time.sleep(0.1)
     
     while ssh_channel.recv_ready():
-        # Receive data from the channel (up to 1024 bytes at a time)
+        # Receive data from the channel
         output += ssh_channel.recv(1024).decode('utf-8')
     
     # Check if the expected prompt is not in the output
@@ -32,41 +35,69 @@ def send_expect(ssh_channel, command, expect_prompt, timeout=1):
     
     return output
 
-
-# SSH connection details
-hostname = 'your-host'
-username = 'your-username'
-password = 'your-password'
-
-try:
-    # Create an SSH client instance
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname, username=username, password=password)
-
-    # Open an interactive shell session
-    channel = client.invoke_shell()
-    time.sleep(1)  # Give the shell time to initialize
-
-    # Receive the initial shell output
-    if channel.recv_ready():
-        shell_output = channel.recv(1024).decode('utf-8')
-        print(shell_output)
-
-    # Example send-expect interaction
-    prompt = "$"  # This is the shell prompt expected after each command
-    output = send_expect(channel, 'ls -l', prompt)  # Send 'ls -l' and wait for prompt
-    print("Command 1 output:\n", output)
-
-    output = send_expect(channel, 'pwd', prompt)  # Send 'pwd' and wait for prompt
-    print("Command 2 output:\n", output)
+def main():
+    # Load configuration from JSON file
+    config_file = "config.json"
+    try:
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        print(f"Configuration file '{config_file}' not found. Please create the file.")
+        return
+    except json.JSONDecodeError:
+        print(f"Error parsing the JSON configuration file '{config_file}'. Please check for syntax errors.")
+        return
     
-    output = send_expect(channel, 'whoami', prompt)  # Send 'whoami' and wait for prompt
-    print("Command 3 output:\n", output)
+    # Extract credentials and list of hostnames
+    username = config.get("username")
+    password = config.get("password")
+    hostnames = config.get("hostnames", [])
 
-    # Close the channel and connection
-    channel.close()
-    client.close()
+    if not username or not password:
+        print("Error: 'username' or 'password' not found in the configuration file!")
+        return
 
-except paramiko.SSHException as e:
-    print(f"An error occurred: {e}")
+    if not hostnames:
+        print("Error: No hostnames found in the configuration file!")
+        return
+
+    # Commands to execute on each host
+    commands = ["ls -l", "pwd", "whoami"]
+
+    for hostname in hostnames:
+        print(f"\nConnecting to host: {hostname}")
+        try:
+            # Create an SSH client instance
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(hostname, username=username, password=password)
+
+            # Open an interactive shell session
+            channel = client.invoke_shell()
+            time.sleep(1)  # Give the shell time to initialize
+
+            # Receive the initial shell output
+            if channel.recv_ready():
+                shell_output = channel.recv(1024).decode('utf-8')
+                print(shell_output)
+            
+            # Execute commands in sequence
+            prompt = "$"  # Adjust the expected shell prompt if necessary
+            for command in commands:
+                print(f"Executing command: {command}")
+                output = send_expect(channel, command, prompt)
+                print(f"Output from {command} ({hostname}):\n{output}")
+
+            # Close the channel and connection
+            channel.close()
+            client.close()
+
+        except paramiko.SSHException as e:
+            print(f"SSH error while connecting to {hostname}: {e}")
+        except RuntimeError as e:
+            print(f"Runtime error on {hostname}: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred on {hostname}: {e}")
+
+if __name__ == "__main__":
+    main()
