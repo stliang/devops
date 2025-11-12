@@ -1,0 +1,11 @@
+{
+    "username": "my_user",
+    "password": "my_password",
+    "hostnames": [
+        "host1.abc.com",
+        "host2.abc.com",
+        "host3.abc.com",
+        "host4.abc.com",
+        "host5.abc.com"
+    ]
+}
